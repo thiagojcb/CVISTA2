@@ -13,7 +13,7 @@ import awkward as ak
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton
-from PyQt5.QtWidgets import QHBoxLayout, QSpinBox, QLabel, QRadioButton, QGroupBox
+from PyQt5.QtWidgets import QHBoxLayout, QSpinBox, QLabel, QRadioButton, QGroupBox, QTextEdit
 
 class EventDisplay(QMainWindow):
     def __init__(self, input_file):
@@ -90,6 +90,10 @@ class EventDisplay(QMainWindow):
         self.plot_button.clicked.connect(self.plot_data)
         button_layout.addWidget(self.plot_button)
 
+        # Text with basic event info
+        self.text_edit = QTextEdit()
+        button_layout.addWidget(self.text_edit)
+
         control_layout.addLayout(button_layout)
         
         self.figure3, self.ax3 = plt.subplots()
@@ -103,6 +107,22 @@ class EventDisplay(QMainWindow):
             file = uproot.open(self.input_file)
             tree = file['output']
             entry_index = self.entry_spinbox.value()
+
+            x_th = tree['mcx'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            x_th = ak.to_numpy(x_th)
+            y_th = tree['mcy'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            y_th = ak.to_numpy(y_th)
+            z_th = tree['mcz'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            z_th = ak.to_numpy(z_th)
+
+            # Update the text box in the QTextEdit widget
+            summary_text = (
+                f"Entry: {entry_index}\n"
+                f"X: {x_th[0]:.1f} mm\n"
+                f"Y: {y_th[0]:.1f} mm\n"
+                f"Z: {z_th[0]:.1f} mm\n"
+                )
+            self.text_edit.setText(summary_text)
 
             x = tree['mcPEx'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]        
             x = ak.to_numpy(x)
