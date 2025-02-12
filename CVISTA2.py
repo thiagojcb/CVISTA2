@@ -75,17 +75,27 @@ class EventDisplay(QMainWindow):
         self.hist_layout.addWidget(self.figure1.canvas)
         self.hist_layout.addWidget(self.figure2.canvas)
 
+        control_layout = QHBoxLayout()
+        button_layout  = QVBoxLayout()
+
         # Event selector
         self.entry_label = QLabel('Select Entry:')
-        layout.addWidget(self.entry_label)
+        button_layout.addWidget(self.entry_label)
         self.entry_spinbox = QSpinBox()
         self.entry_spinbox.setMinimum(0)
-        layout.addWidget(self.entry_spinbox)
+        button_layout.addWidget(self.entry_spinbox)
 
         # Display button
         self.plot_button = QPushButton('Display event')
         self.plot_button.clicked.connect(self.plot_data)
-        layout.addWidget(self.plot_button)
+        button_layout.addWidget(self.plot_button)
+
+        control_layout.addLayout(button_layout)
+        
+        self.figure3, self.ax3 = plt.subplots()
+        control_layout.addWidget(self.figure3.canvas)
+        
+        layout.addLayout(control_layout)
 
     def plot_data(self):
         try:
