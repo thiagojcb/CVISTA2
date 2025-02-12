@@ -108,20 +108,54 @@ class EventDisplay(QMainWindow):
             tree = file['output']
             entry_index = self.entry_spinbox.value()
 
+            # check if branches exist
+            branches = tree.keys()
+            reco_exists = 'x_FitCentroid' in branches
+
+            # Initialize text
+            summary_text = f'Entry: {entry_index}\n'
+
+            mcpdg    = tree['mcpdg'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            mcpdg    = ak.to_numpy(mcpdg)
+            summary_text += f"MC particle: {mcpdg[0]}\n"
+
+            mcke     = tree['mcke'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            mcke     = ak.to_numpy(mcke)
+            summary_text += f"KE: {mcke[0]:.1f} MeV\n"
+
             x_th = tree['mcx'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             x_th = ak.to_numpy(x_th)
+            summary_text +=  f"X: {x_th[0]:.1f} mm, "
             y_th = tree['mcy'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             y_th = ak.to_numpy(y_th)
+            summary_text += f"Y: {y_th[0]:.1f} mm, "
             z_th = tree['mcz'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             z_th = ak.to_numpy(z_th)
+            summary_text += f"Z: {z_th[0]:.1f} mm\n"
 
-            # Update the text box in the QTextEdit widget
-            summary_text = (
-                f"Entry: {entry_index}\n"
-                f"X: {x_th[0]:.1f} mm\n"
-                f"Y: {y_th[0]:.1f} mm\n"
-                f"Z: {z_th[0]:.1f} mm\n"
-                )
+            mcpecount= tree['mcpecount'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            mcpecount= ak.to_numpy(mcpecount)
+            summary_text += f"Total PEs: {mcpecount[0]}, "
+
+            mcnhits  = tree['mcnhits'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            mcnhits  = ak.to_numpy(mcnhits)
+            summary_text += f"SiPMs w/ PEs: {mcnhits[0]}\n"
+
+            if reco_exists:
+                x_reco = tree['x_FitCentroid'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+                x_reco = ak.to_numpy(x_reco)
+                summary_text += f"X reco: {x_reco[0]:.1f} mm, "
+                y_reco = tree['y_FitCentroid'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+                y_reco = ak.to_numpy(y_reco)
+                summary_text += f"Y reco: {y_reco[0]:.1f} mm, "
+                z_reco = tree['z_FitCentroid'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+                z_reco = ak.to_numpy(z_reco)
+                summary_text += f"Z reco: {z_reco[0]:.1f} mm\n"
+            else:
+                summary_text += "X reco: NaN "
+                summary_text += "Y reco: NaN "
+                summary_text += "Z reco: NaN "
+
             self.text_edit.setText(summary_text)
 
             x = tree['mcPEx'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]        
@@ -153,17 +187,13 @@ class EventDisplay(QMainWindow):
             y_range = (-1000, 1000)
 
             if self.signal_radio.isChecked():
-                # Signal Strength data handling
-                print("Signal Strength selected")
-
-                # Create 2D histograms
+                # Create 2D histograms for PEs
                 h_back, xedges1, yedges1 = np.histogram2d(x_back, y_back, bins=100,range=[x_range, y_range])
                 h_front, xedges2, yedges2 = np.histogram2d(x_front, y_front, bins=100,range=[x_range, y_range])            
 
 
             elif self.time_radio.isChecked():
-                # Time data handling
-                print("First Hit Time selected")
+                # Time MC data plotting
                 
                 bins = (100,100)
                 # Define the edges for the bins
