@@ -62,20 +62,6 @@ class EventDisplay(QMainWindow):
         hBox.addWidget(group_Data_box)
 
         layout.addLayout(hBox)
-        #layout.addWidget(self.signal_radio)
-        #layout.addWidget(self.time_radio)
-        #layout.addWidget(self.med_time_radio)
-
-        self.entry_label = QLabel('Select Entry:')
-        layout.addWidget(self.entry_label)
-
-        self.entry_spinbox = QSpinBox()
-        self.entry_spinbox.setMinimum(0)
-        layout.addWidget(self.entry_spinbox)
-
-        self.plot_button = QPushButton('Plot Data')
-        self.plot_button.clicked.connect(self.plot_data)
-        layout.addWidget(self.plot_button)
 
         # Create a layout for the histograms
         self.hist_layout = QHBoxLayout()
@@ -88,6 +74,18 @@ class EventDisplay(QMainWindow):
         # Add the figures to the layout
         self.hist_layout.addWidget(self.figure1.canvas)
         self.hist_layout.addWidget(self.figure2.canvas)
+
+        # Event selector
+        self.entry_label = QLabel('Select Entry:')
+        layout.addWidget(self.entry_label)
+        self.entry_spinbox = QSpinBox()
+        self.entry_spinbox.setMinimum(0)
+        layout.addWidget(self.entry_spinbox)
+
+        # Display button
+        self.plot_button = QPushButton('Display event')
+        self.plot_button.clicked.connect(self.plot_data)
+        layout.addWidget(self.plot_button)
 
     def plot_data(self):
         try:
