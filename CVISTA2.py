@@ -152,9 +152,9 @@ class EventDisplay(QMainWindow):
                 z_reco = ak.to_numpy(z_reco)
                 summary_text += f"Z reco: {z_reco[0]:.1f} mm\n"
             else:
-                summary_text += "X reco: NaN "
-                summary_text += "Y reco: NaN "
-                summary_text += "Z reco: NaN "
+                summary_text += "X reco: NaN, "
+                summary_text += "Y reco: NaN, "
+                summary_text += "Z reco: NaN\n"
 
             self.text_edit.setText(summary_text)
 
