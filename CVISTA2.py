@@ -14,6 +14,9 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton
 from PyQt5.QtWidgets import QHBoxLayout, QSpinBox, QLabel, QRadioButton, QGroupBox, QTextEdit
+from matplotlib.gridspec import GridSpec
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 
 class EventDisplay(QMainWindow):
     def __init__(self, input_file):
@@ -67,13 +70,20 @@ class EventDisplay(QMainWindow):
         self.hist_layout = QHBoxLayout()
         layout.addLayout(self.hist_layout)
 
-        # Create figures for the histograms
-        self.figure1, self.ax1 = plt.subplots()
-        self.figure2, self.ax2 = plt.subplots()
+        # Create a figure with shared y-axis
+        self.figure = plt.figure(constrained_layout=True)
+        gs = GridSpec(1, 2, figure=self.figure, width_ratios=[1, 1], wspace=0)
+        self.ax1 = self.figure.add_subplot(gs[0, 0])
+        self.ax2 = self.figure.add_subplot(gs[0, 1], sharey=self.ax1)
 
-        # Add the figures to the layout
-        self.hist_layout.addWidget(self.figure1.canvas)
-        self.hist_layout.addWidget(self.figure2.canvas)
+        # Hide the y-axis ticks and labels on the right plot
+        self.ax2.yaxis.set_visible(False)
+
+        self.ax1.set_position([0.1, 0.15, 0.4, 0.8])
+        self.ax2.set_position([0.5, 0.15, 0.4, 0.8])
+
+        # Add the figure to the layout
+        self.hist_layout.addWidget(self.figure.canvas)
 
         control_layout = QHBoxLayout()
         button_layout  = QVBoxLayout()
@@ -183,8 +193,8 @@ class EventDisplay(QMainWindow):
             t_front = t[positive_pez_indices]
 
             # Define fixed ranges for the histograms
-            x_range = (-1000, 1000)
-            y_range = (-1000, 1000)
+            x_range = (-1250, 1250)
+            y_range = (-1250, 1250)
 
             if self.signal_radio.isChecked():
                 # Create 2D histograms for PEs
@@ -248,14 +258,20 @@ class EventDisplay(QMainWindow):
             # Plot the 2D histograms
             self.ax1.clear()
             self.ax1.imshow(h_back_m.T, origin='lower', aspect='auto', extent=[xedges1[0], xedges1[-1], yedges1[0], yedges1[-1]], cmap=cmap, norm=LogNorm(vmin=vmin, vmax=vmax))
-            self.ax1.set_title('Back panel')
+            # self.ax1.set_title('Back panel')
+            self.ax1.set_xlabel('X (mm)')
+            self.ax1.set_ylabel('Y (mm)')
 
             self.ax2.clear()
             im2 = self.ax2.imshow(h_front_m.T, origin='lower', aspect='auto', extent=[xedges2[0], xedges2[-1], yedges2[0], yedges2[-1]], cmap=cmap, norm=LogNorm(vmin=vmin, vmax=vmax))
-            self.ax2.set_title('Front panel')
+            # self.ax2.set_title('Front panel')
+            self.ax2.set_xlabel('X (mm)')
+
             if self.colorbar2:
                 self.colorbar2.remove()
-            self.colorbar2 = self.figure2.colorbar(im2, ax=self.ax2, norm=LogNorm(vmin=vmin, vmax=vmax))
+            divider = make_axes_locatable(self.ax2)
+            cax = divider.append_axes("right", size="5%", pad=0.05)
+            self.colorbar2 = self.figure.colorbar(im2, cax=cax)
 
             # Draw dotted circles on the histograms
             circle1 = plt.Circle((0, 0), radius=900, color='red', fill=False, linestyle='dotted')
@@ -264,8 +280,7 @@ class EventDisplay(QMainWindow):
             self.ax1.add_patch(circle1)
             self.ax2.add_patch(circle2)
 
-            self.figure1.canvas.draw()
-            self.figure2.canvas.draw()
+            self.figure.canvas.draw()
         except Exception as e:
             print(f"An error occurred: {e}")
 
