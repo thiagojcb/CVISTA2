@@ -191,41 +191,37 @@ class EventDisplay(QMainWindow):
             mcPMTNPE = ak.to_numpy(mcPMTNPE)
 
             # get back and front channels
-            negative_pez_indices = z < 0
-            positive_pez_indices = z >= 0
+            # negative_pez_indices = z < 0
+            # positive_pez_indices = z >= 0
 
-            x_back = x[negative_pez_indices]
-            y_back = y[negative_pez_indices]
-            t_back = t[negative_pez_indices]
+            # x_back = x[negative_pez_indices]
+            # y_back = y[negative_pez_indices]
+            # t_back = t[negative_pez_indices]
 
-            x_front = x[positive_pez_indices]
-            y_front = y[positive_pez_indices]
-            t_front = t[positive_pez_indices]
+            # x_front = x[positive_pez_indices]
+            # y_front = y[positive_pez_indices]
+            # t_front = t[positive_pez_indices]
 
             # Define fixed ranges for the histograms
             x_range = (-1250, 1250)
             y_range = (-1250, 1250)
 
             if self.signal_radio.isChecked():
-                # Create 2D histograms for PEs
-                h_back, xedges1, yedges1 = np.histogram2d(x_back, y_back, bins=100,range=[x_range, y_range])
-                h_front, xedges2, yedges2 = np.histogram2d(x_front, y_front, bins=100,range=[x_range, y_range])
-                
-                masked_pmt = np.isin(pmtID, mcPMTID)
-                masked_x = pmtX[masked_pmt]
-                masked_y = pmtY[masked_pmt]
-                masked_z = pmtZ[masked_pmt]
-                
-                back_pmt_i  = masked_z < 0
-                front_pmt_i = masked_z > 0
-                
-                back_npe_x = masked_x[back_pmt_i]
-                back_npe_y = masked_y[back_pmt_i]
-                back_npe   = mcPMTNPE[back_pmt_i]
+                # Create a dictionary to map pmtid to their corresponding values
+                pmt_dict = {id: (x, y, z) for id, x, y, z in zip(pmtID, pmtX, pmtY, pmtZ)}
 
-                front_npe_x = masked_x[front_pmt_i]
-                front_npe_y = masked_y[front_pmt_i]
-                front_npe   = mcPMTNPE[front_pmt_i]
+                # Extract the corresponding pmtx, pmty, and pmtz values for the flagged pmtids
+                flagged_x = np.array([pmt_dict[id][0] for id in mcPMTID])
+                flagged_y = np.array([pmt_dict[id][1] for id in mcPMTID])
+                flagged_z = np.array([pmt_dict[id][2] for id in mcPMTID])
+
+                back_npe   = mcPMTNPE[flagged_z < 0]
+                back_npe_x = flagged_x[flagged_z < 0]
+                back_npe_y = flagged_y[flagged_z < 0]
+
+                front_npe   = mcPMTNPE[flagged_z > 0]
+                front_npe_x = flagged_x[flagged_z > 0]
+                front_npe_y = flagged_y[flagged_z > 0]
 
             elif self.time_radio.isChecked():
                 # Time MC data plotting
@@ -270,8 +266,8 @@ class EventDisplay(QMainWindow):
                 print("Median Time selected")
 
             # Mask the bins with zero entries
-            h_back_m = np.ma.masked_where(h_back == 0, h_back)
-            h_front_m = np.ma.masked_where(h_front == 0, h_front)
+            # h_back_m = np.ma.masked_where(h_back == 0, h_back)
+            # h_front_m = np.ma.masked_where(h_front == 0, h_front)
 
             cmap = plt.cm.viridis
             cmap.set_bad(color='white')  # Set color for masked values
@@ -284,7 +280,7 @@ class EventDisplay(QMainWindow):
 
             # Plot the 2D histograms
             self.ax1.clear()
-            sizes = back_npe*5
+            sizes = back_npe
             scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax)
             # self.ax1.imshow(h_back_m.T, origin='lower', aspect='auto', extent=[xedges1[0], xedges1[-1], yedges1[0], yedges1[-1]], cmap=cmap, norm=LogNorm(vmin=vmin, vmax=vmax))
             # self.ax1.set_title('Back panel')
@@ -297,7 +293,7 @@ class EventDisplay(QMainWindow):
             self.ax1.set_ylabel('Y (mm)')
 
             self.ax2.clear()
-            sizes = front_npe*5
+            sizes = front_npe
             # scatter2 = self.ax2.scatter(x_front, y_front, c=colors, s=sizes, alpha=0.5)
             # scatter2 = self.ax2.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax)
             scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax)
