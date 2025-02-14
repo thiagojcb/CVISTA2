@@ -112,6 +112,7 @@ class EventDisplay(QMainWindow):
             tree = file['output']
             meta = file['meta']
             entry_index = self.entry_spinbox.value()
+            nentries = tree.num_entries
 
             # check if branches exist
             branches = tree.keys()
@@ -127,7 +128,7 @@ class EventDisplay(QMainWindow):
             pmtZ = ak.to_numpy(pmtZ)
      
             # Initialize text
-            summary_text = 'File: '+self.input_file+'\n'
+            summary_text = 'File: '+self.input_file+f' ({nentries} entries)\n'
             summary_text += f'Entry: {entry_index}\n'
 
             mcpdg    = tree['mcpdg'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
