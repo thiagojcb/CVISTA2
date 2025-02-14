@@ -113,6 +113,7 @@ class EventDisplay(QMainWindow):
             meta = file['meta']
             entry_index = self.entry_spinbox.value()
             nentries = tree.num_entries
+            self.entry_spinbox.setMaximum(nentries-1)
 
             # check if branches exist
             branches = tree.keys()
