@@ -116,12 +116,22 @@ class EventDisplay(QMainWindow):
             # Read data from ROOT file
             file = uproot.open(self.input_file)
             tree = file['output']
+            meta = file['meta']
             entry_index = self.entry_spinbox.value()
 
             # check if branches exist
             branches = tree.keys()
             reco_exists = 'x_FitCentroid' in branches
 
+            pmtID = meta["pmtId"].array()[0]
+            pmtID = ak.to_numpy(pmtID)
+            pmtX  = meta["pmtX"].array()[0]
+            pmtX = ak.to_numpy(pmtX)
+            pmtY  = meta["pmtY"].array()[0]
+            pmtY = ak.to_numpy(pmtY)
+            pmtZ  = meta["pmtZ"].array()[0]
+            pmtZ = ak.to_numpy(pmtZ)
+     
             # Initialize text
             summary_text = f'Entry: {entry_index}\n'
 
@@ -180,6 +190,12 @@ class EventDisplay(QMainWindow):
             t = tree['mcPEHitTime'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             t = ak.to_numpy(t)
 
+            mcPMTID = tree['mcPMTID'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            mcPMTID = ak.to_numpy(mcPMTID)
+
+            mcPMTNPE = tree['mcPMTNPE'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            mcPMTNPE = ak.to_numpy(mcPMTNPE)
+
             # get back and front channels
             negative_pez_indices = z < 0
             positive_pez_indices = z >= 0
@@ -199,8 +215,23 @@ class EventDisplay(QMainWindow):
             if self.signal_radio.isChecked():
                 # Create 2D histograms for PEs
                 h_back, xedges1, yedges1 = np.histogram2d(x_back, y_back, bins=100,range=[x_range, y_range])
-                h_front, xedges2, yedges2 = np.histogram2d(x_front, y_front, bins=100,range=[x_range, y_range])            
+                h_front, xedges2, yedges2 = np.histogram2d(x_front, y_front, bins=100,range=[x_range, y_range])
+                
+                masked_pmt = np.isin(pmtID, mcPMTID)
+                masked_x = pmtX[masked_pmt]
+                masked_y = pmtY[masked_pmt]
+                masked_z = pmtZ[masked_pmt]
+                
+                back_pmt_i  = masked_z < 0
+                front_pmt_i = masked_z > 0
+                
+                back_npe_x = masked_x[back_pmt_i]
+                back_npe_y = masked_y[back_pmt_i]
+                back_npe   = mcPMTNPE[back_pmt_i]
 
+                front_npe_x = masked_x[front_pmt_i]
+                front_npe_y = masked_y[front_pmt_i]
+                front_npe   = mcPMTNPE[front_pmt_i]
 
             elif self.time_radio.isChecked():
                 # Time MC data plotting
@@ -252,26 +283,43 @@ class EventDisplay(QMainWindow):
             cmap.set_bad(color='white')  # Set color for masked values
 
             # Determine the common color scale range
-            vmin = min(h_back_m.min(), h_front_m.min())
-            vmax = max(h_back_m.max(), h_front_m.max())
+            # vmin = min(h_back_m.min(), h_front_m.min())
+            # vmax = max(h_back_m.max(), h_front_m.max())
+            vmin = min(back_npe.min(), front_npe.min())
+            vmax = max(back_npe.max(), front_npe.max())
 
             # Plot the 2D histograms
             self.ax1.clear()
-            self.ax1.imshow(h_back_m.T, origin='lower', aspect='auto', extent=[xedges1[0], xedges1[-1], yedges1[0], yedges1[-1]], cmap=cmap, norm=LogNorm(vmin=vmin, vmax=vmax))
+            sizes = back_npe*5
+            scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax)
+            # self.ax1.imshow(h_back_m.T, origin='lower', aspect='auto', extent=[xedges1[0], xedges1[-1], yedges1[0], yedges1[-1]], cmap=cmap, norm=LogNorm(vmin=vmin, vmax=vmax))
             # self.ax1.set_title('Back panel')
+            self.ax1.set_xlim(x_range)
+            self.ax1.set_ylim(y_range)
+            # print(back_npe_x)
+            # print(back_npe_y)
+            # print(back_npe)
             self.ax1.set_xlabel('X (mm)')
             self.ax1.set_ylabel('Y (mm)')
 
             self.ax2.clear()
-            im2 = self.ax2.imshow(h_front_m.T, origin='lower', aspect='auto', extent=[xedges2[0], xedges2[-1], yedges2[0], yedges2[-1]], cmap=cmap, norm=LogNorm(vmin=vmin, vmax=vmax))
+            sizes = front_npe*5
+            # scatter2 = self.ax2.scatter(x_front, y_front, c=colors, s=sizes, alpha=0.5)
+            # scatter2 = self.ax2.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax)
+            scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax)
+            self.ax2.set_xlim(x_range)
+            self.ax2.set_ylim(y_range)
+            # im2 = self.ax2.imshow(h_front_m.T, origin='lower', aspect='auto', extent=[xedges2[0], xedges2[-1], yedges2[0], yedges2[-1]], cmap=cmap, norm=LogNorm(vmin=vmin, vmax=vmax))
             # self.ax2.set_title('Front panel')
             self.ax2.set_xlabel('X (mm)')
+
 
             if self.colorbar2:
                 self.colorbar2.remove()
             divider = make_axes_locatable(self.ax2)
             cax = divider.append_axes("right", size="5%", pad=0.05)
-            self.colorbar2 = self.figure.colorbar(im2, cax=cax)
+            # self.colorbar2 = self.figure.colorbar(im2, cax=cax)
+            self.colorbar2 = self.figure.colorbar(scatter2, cax=cax)
 
             # Draw dotted circles on the histograms
             circle1 = plt.Circle((0, 0), radius=900, color='red', fill=False, linestyle='dotted')
