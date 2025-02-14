@@ -48,6 +48,7 @@ class EventDisplay(QMainWindow):
         
         self.signal_radio.setChecked(True)  # Set default selection
         self.med_time_radio.setDisabled(True) # functionality not available yet
+        self.time_radio.setDisabled(True) # broken now, need to update before enabling
 
         # DATA group box
         group_Data_box = QGroupBox("Data")
