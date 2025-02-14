@@ -127,7 +127,8 @@ class EventDisplay(QMainWindow):
             pmtZ = ak.to_numpy(pmtZ)
      
             # Initialize text
-            summary_text = f'Entry: {entry_index}\n'
+            summary_text = 'File: '+self.input_file+'\n'
+            summary_text += f'Entry: {entry_index}\n'
 
             mcpdg    = tree['mcpdg'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             mcpdg    = ak.to_numpy(mcpdg)
