@@ -81,18 +81,27 @@ class EventDisplay(QMainWindow):
 
         control_layout = QHBoxLayout()
         button_layout  = QVBoxLayout()
+        display_layout = QHBoxLayout()
 
         # Event selector
         self.entry_label = QLabel('Select Entry:')
-        button_layout.addWidget(self.entry_label)
+        display_layout.addWidget(self.entry_label)
+
         self.entry_spinbox = QSpinBox()
         self.entry_spinbox.setMinimum(0)
-        button_layout.addWidget(self.entry_spinbox)
+        display_layout.addWidget(self.entry_spinbox)
 
         # Display button
         self.plot_button = QPushButton('Display event')
         self.plot_button.clicked.connect(self.plot_data)
-        button_layout.addWidget(self.plot_button)
+        display_layout.addWidget(self.plot_button)
+
+        button_layout.addLayout(display_layout)
+
+        # Next button
+        self.next_button = QPushButton('Display next')
+        self.next_button.clicked.connect(self.display_next_event)
+        display_layout.addWidget(self.next_button)
 
         # Text with basic event info
         self.text_edit = QTextEdit()
@@ -104,6 +113,12 @@ class EventDisplay(QMainWindow):
         control_layout.addWidget(self.figure3.canvas)
         
         layout.addLayout(control_layout)
+
+    def display_next_event(self):
+        current_index = self.entry_spinbox.value()
+        if current_index < self.entry_spinbox.maximum():
+            self.entry_spinbox.setValue(current_index + 1)
+            self.plot_data()
 
     def plot_data(self):
         try:
