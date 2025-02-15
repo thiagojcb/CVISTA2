@@ -309,6 +309,10 @@ class EventDisplay(QMainWindow):
             # print(back_npe)
             self.ax1.set_xlabel('X (mm)')
             self.ax1.set_ylabel('Y (mm)')
+            leg1_text  = '-Z Channels\n'
+            leg1_text += f'{sum(back_npe)} PEs\n'
+            leg1_text += f'{len(back_npe_x)} Hits'
+            self.ax1.legend(scatterpoints=1,title=leg1_text,frameon=False)
 
             self.ax2.clear()
             sizes = front_npe
@@ -320,6 +324,10 @@ class EventDisplay(QMainWindow):
             # im2 = self.ax2.imshow(h_front_m.T, origin='lower', aspect='auto', extent=[xedges2[0], xedges2[-1], yedges2[0], yedges2[-1]], cmap=cmap, norm=LogNorm(vmin=vmin, vmax=vmax))
             # self.ax2.set_title('Front panel')
             self.ax2.set_xlabel('X (mm)')
+            leg2_text  = '+Z Channels\n'
+            leg2_text += f'{sum(front_npe)} PEs\n'
+            leg2_text += f'{len(front_npe_x)} Hits'
+            self.ax2.legend(title=leg2_text,frameon=False)
 
 
             if self.colorbar:
