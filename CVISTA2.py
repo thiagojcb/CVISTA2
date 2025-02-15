@@ -102,6 +102,11 @@ class EventDisplay(QMainWindow):
         self.next_button = QPushButton('Display next')
         self.next_button.clicked.connect(self.display_next_event)
         display_layout.addWidget(self.next_button)
+        
+        # Previous button
+        self.prev_button = QPushButton('Display previous')
+        self.prev_button.clicked.connect(self.display_prev_event)
+        display_layout.addWidget(self.prev_button)
 
         # Text with basic event info
         self.text_edit = QTextEdit()
@@ -118,6 +123,12 @@ class EventDisplay(QMainWindow):
         current_index = self.entry_spinbox.value()
         if current_index < self.entry_spinbox.maximum():
             self.entry_spinbox.setValue(current_index + 1)
+            self.plot_data()
+            
+    def display_prev_event(self):
+        current_index = self.entry_spinbox.value()
+        if current_index > self.entry_spinbox.minimum():
+            self.entry_spinbox.setValue(current_index - 1)
             self.plot_data()
 
     def plot_data(self):
