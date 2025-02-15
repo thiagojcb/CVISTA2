@@ -303,7 +303,8 @@ class EventDisplay(QMainWindow):
 
             # Plot the 2D histograms
             self.ax1.clear()
-            sizes = back_npe
+            # sizes = back_npe
+            sizes = 1
             scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax)
             self.ax1.set_xlim(x_range)
             self.ax1.set_ylim(y_range)
@@ -311,20 +312,21 @@ class EventDisplay(QMainWindow):
             self.ax1.set_xlabel('X (mm)')
             self.ax1.set_ylabel('Y (mm)')
             leg1_text  = '-Z Channels\n'
-            leg1_text += f'{sum(back_npe)} PEs\n'
-            leg1_text += f'{len(back_npe_x)} Hits'
+            leg1_text += f'{len(back_npe_x)} SiPMs\n'
+            leg1_text += f'{sum(back_npe)} PEs'
             style = dict(size=8, color='gray')
             self.ax1.text(800,600,leg1_text,**style)
 
             self.ax2.clear()
-            sizes = front_npe
+            # sizes = front_npe
+            sizes = 1
             scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax)
             self.ax2.set_xlim(x_range)
             self.ax2.set_ylim(y_range)
             self.ax2.set_xlabel('X (mm)')
             leg2_text  = '+Z Channels\n'
-            leg2_text += f'{sum(front_npe)} PEs\n'
-            leg2_text += f'{len(front_npe_x)} Hits'
+            leg2_text += f'{len(front_npe_x)} SiPMs\n'
+            leg2_text += f'{sum(front_npe)} PEs'
             self.ax2.text(800,600,leg2_text,**style)
 
 
