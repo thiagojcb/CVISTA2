@@ -312,7 +312,8 @@ class EventDisplay(QMainWindow):
             leg1_text  = '-Z Channels\n'
             leg1_text += f'{sum(back_npe)} PEs\n'
             leg1_text += f'{len(back_npe_x)} Hits'
-            self.ax1.legend(scatterpoints=1,title=leg1_text,frameon=False)
+            style = dict(size=8, color='gray')
+            self.ax1.text(800,600,leg1_text,**style)
 
             self.ax2.clear()
             sizes = front_npe
@@ -327,7 +328,7 @@ class EventDisplay(QMainWindow):
             leg2_text  = '+Z Channels\n'
             leg2_text += f'{sum(front_npe)} PEs\n'
             leg2_text += f'{len(front_npe_x)} Hits'
-            self.ax2.legend(title=leg2_text,frameon=False)
+            self.ax2.text(800,600,leg2_text,**style)
 
 
             if self.colorbar:
