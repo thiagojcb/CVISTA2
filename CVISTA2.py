@@ -283,16 +283,10 @@ class EventDisplay(QMainWindow):
             elif self.med_time_radio.isChecked():
                 print("Median Time selected")
 
-            # Mask the bins with zero entries
-            # h_back_m = np.ma.masked_where(h_back == 0, h_back)
-            # h_front_m = np.ma.masked_where(h_front == 0, h_front)
-
             cmap = plt.cm.viridis
             cmap.set_bad(color='white')  # Set color for masked values
 
             # Determine the common color scale range
-            # vmin = min(h_back_m.min(), h_front_m.min())
-            # vmax = max(h_back_m.max(), h_front_m.max())
             vmin = min(back_npe.min(), front_npe.min())
             vmax = max(back_npe.max(), front_npe.max())
 
@@ -300,13 +294,9 @@ class EventDisplay(QMainWindow):
             self.ax1.clear()
             sizes = back_npe
             scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax)
-            # self.ax1.imshow(h_back_m.T, origin='lower', aspect='auto', extent=[xedges1[0], xedges1[-1], yedges1[0], yedges1[-1]], cmap=cmap, norm=LogNorm(vmin=vmin, vmax=vmax))
-            # self.ax1.set_title('Back panel')
             self.ax1.set_xlim(x_range)
             self.ax1.set_ylim(y_range)
-            # print(back_npe_x)
-            # print(back_npe_y)
-            # print(back_npe)
+
             self.ax1.set_xlabel('X (mm)')
             self.ax1.set_ylabel('Y (mm)')
             leg1_text  = '-Z Channels\n'
@@ -317,13 +307,9 @@ class EventDisplay(QMainWindow):
 
             self.ax2.clear()
             sizes = front_npe
-            # scatter2 = self.ax2.scatter(x_front, y_front, c=colors, s=sizes, alpha=0.5)
-            # scatter2 = self.ax2.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax)
             scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax)
             self.ax2.set_xlim(x_range)
             self.ax2.set_ylim(y_range)
-            # im2 = self.ax2.imshow(h_front_m.T, origin='lower', aspect='auto', extent=[xedges2[0], xedges2[-1], yedges2[0], yedges2[-1]], cmap=cmap, norm=LogNorm(vmin=vmin, vmax=vmax))
-            # self.ax2.set_title('Front panel')
             self.ax2.set_xlabel('X (mm)')
             leg2_text  = '+Z Channels\n'
             leg2_text += f'{sum(front_npe)} PEs\n'
