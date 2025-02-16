@@ -176,13 +176,35 @@ class EventDisplay(QMainWindow):
             z_th = ak.to_numpy(z_th)
             summary_text += f"Z: {z_th[0]:.1f} mm\n"
 
-            mcpecount= tree['mcpecount'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
-            mcpecount= ak.to_numpy(mcpecount)
-            summary_text += f"Total PEs: {mcpecount[0]}, "
+            x = tree['mcPEx'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            x = ak.to_numpy(x)
 
-            mcnhits  = tree['mcnhits'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
-            mcnhits  = ak.to_numpy(mcnhits)
-            summary_text += f"SiPMs w/ PEs: {mcnhits[0]}\n"
+            y = tree['mcPEy'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            y = ak.to_numpy(y)
+
+            z = tree['mcPEz'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            z = ak.to_numpy(z)
+
+            t = tree['mcPEHitTime'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            t = ak.to_numpy(t)
+
+            # mcpecount= tree['mcpecount'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            # mcpecount= ak.to_numpy(mcpecount)
+
+            # mcnhits  = tree['mcnhits'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            # mcnhits  = ak.to_numpy(mcnhits)
+
+            mcPMTID = tree['mcPMTID'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            mcPMTID = ak.to_numpy(mcPMTID)
+
+            mcPMTNPE = tree['mcPMTNPE'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            mcPMTNPE = ak.to_numpy(mcPMTNPE)
+
+            mcpecount = sum(mcPMTNPE)
+            mcnhits   = len(mcPMTNPE>0)
+
+            summary_text += f"SiPMs w/ PEs: {mcnhits},"
+            summary_text += f"Total PEs: {mcpecount}\n"
 
             if reco_exists:
                 x_reco = tree['x_FitCentroid'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
@@ -200,24 +222,6 @@ class EventDisplay(QMainWindow):
                 summary_text += "Z reco: NaN\n"
 
             self.text_edit.setText(summary_text)
-
-            x = tree['mcPEx'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]        
-            x = ak.to_numpy(x)
-
-            y = tree['mcPEy'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]        
-            y = ak.to_numpy(y)
-
-            z = tree['mcPEz'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
-            z = ak.to_numpy(z)
-
-            t = tree['mcPEHitTime'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
-            t = ak.to_numpy(t)
-
-            mcPMTID = tree['mcPMTID'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
-            mcPMTID = ak.to_numpy(mcPMTID)
-
-            mcPMTNPE = tree['mcPMTNPE'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
-            mcPMTNPE = ak.to_numpy(mcPMTNPE)
 
             # get back and front channels
             # negative_pez_indices = z < 0
@@ -247,10 +251,20 @@ class EventDisplay(QMainWindow):
                 back_npe   = mcPMTNPE[flagged_z < 0]
                 back_npe_x = flagged_x[flagged_z < 0]
                 back_npe_y = flagged_y[flagged_z < 0]
+                withPE    = back_npe>0
+
+                back_npe   = back_npe[withPE]
+                back_npe_x = back_npe_x[withPE]
+                back_npe_y = back_npe_y[withPE]
 
                 front_npe   = mcPMTNPE[flagged_z > 0]
                 front_npe_x = flagged_x[flagged_z > 0]
                 front_npe_y = flagged_y[flagged_z > 0]
+                withPE    = front_npe>0
+
+                front_npe   = front_npe[withPE]
+                front_npe_x = front_npe_x[withPE]
+                front_npe_y = front_npe_y[withPE]
 
             elif self.time_radio.isChecked():
                 # Time MC data plotting
