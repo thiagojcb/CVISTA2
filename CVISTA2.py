@@ -270,9 +270,9 @@ class EventDisplay(QMainWindow):
                 hit_dict_f = {}
                 for xi, yi, ti in zip(x_front,y_front,t_front): #loop over vector length
                     if (xi, yi) not in hit_dict_f: #getting the hit times of each fibre
-                        hit_dict_f[(xi, yi)] = ti
+                        hit_dict_f[(xi, yi)] = [ti]
                     else:
-                        hit_dict_f[(xi, yi)] = min(hit_dict_f[(xi, yi)], ti) 
+                        hit_dict_f[(xi, yi)].append(ti)
 
                 # Get times with values from the dictionary
                 front_npe_x = np.array([])
@@ -281,14 +281,14 @@ class EventDisplay(QMainWindow):
                 for (xpos, ypos), tiso in hit_dict_f.items():
                     front_npe_x = np.append(front_npe_x,xpos)
                     front_npe_y = np.append(front_npe_y,ypos)
-                    front_npe   = np.append(front_npe,tiso)
+                    front_npe   = np.append(front_npe,min(tiso))
                 
                 hit_dict_b = {}
                 for xi, yi, ti in zip(x_back,y_back,t_back): #loop over vector length
                     if (xi, yi) not in hit_dict_b: #getting the hit times of each fibre
-                        hit_dict_b[(xi, yi)] = ti
+                        hit_dict_b[(xi, yi)] = [ti]
                     else:
-                        hit_dict_b[(xi, yi)] = min(hit_dict_b[(xi, yi)], ti) 
+                        hit_dict_b[(xi, yi)].append(ti) 
 
                 back_npe_x = np.array([])
                 back_npe_y = np.array([])
@@ -296,7 +296,7 @@ class EventDisplay(QMainWindow):
                 for (xpos, ypos), tiso in hit_dict_b.items():
                     back_npe_x = np.append(back_npe_x,xpos)
                     back_npe_y = np.append(back_npe_y,ypos)
-                    back_npe   = np.append(back_npe,tiso)
+                    back_npe   = np.append(back_npe,min(tiso))
 
             elif self.med_time_radio.isChecked():
                 print("Median Time selected")
