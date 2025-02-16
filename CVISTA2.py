@@ -352,6 +352,18 @@ class EventDisplay(QMainWindow):
 
             self.figure1.canvas.draw()
             self.figure2.canvas.draw()
+            
+            self.ax3.clear()
+            counts, bin_edges, patches = self.ax3.hist(next(iter(hit_dict.values())), range(0,250))
+            leg3_text  = 'PE time distribution\n'
+            (xi, yi, zi), ti = next(iter(hit_dict.items()))
+            leg3_text += f'Channel ({xi},{yi}) mm'
+            style = dict(size=8, color='gray')
+            self.ax3.text(150,0.9*np.max(counts),leg3_text,**style)
+            self.ax3.set_xlabel('PE time (ns)')
+            self.ax3.set_ylabel('Entries')
+            self.figure3.canvas.draw()
+
         except Exception as e:
             print(f"An error occurred: {e}")
 
