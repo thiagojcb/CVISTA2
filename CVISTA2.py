@@ -48,7 +48,6 @@ class EventDisplay(QMainWindow):
         
         self.signal_radio.setChecked(True)  # Set default selection
         self.med_time_radio.setDisabled(True) # functionality not available yet
-        self.time_radio.setDisabled(True) # broken now, need to update before enabling
 
         # DATA group box
         group_Data_box = QGroupBox("Data")
@@ -223,18 +222,6 @@ class EventDisplay(QMainWindow):
 
             self.text_edit.setText(summary_text)
 
-            # get back and front channels
-            # negative_pez_indices = z < 0
-            # positive_pez_indices = z >= 0
-
-            # x_back = x[negative_pez_indices]
-            # y_back = y[negative_pez_indices]
-            # t_back = t[negative_pez_indices]
-
-            # x_front = x[positive_pez_indices]
-            # y_front = y[positive_pez_indices]
-            # t_front = t[positive_pez_indices]
-
             # Define fixed ranges for the histograms
             x_range = (-1250, 1250)
             y_range = (-1250, 1250)
@@ -268,13 +255,17 @@ class EventDisplay(QMainWindow):
 
             elif self.time_radio.isChecked():
                 # Time MC data plotting
-                
-                bins = (100,100)
-                # Define the edges for the bins
-                xedges1 = np.linspace(x_range[0], x_range[1], bins[0] + 1)
-                yedges1 = np.linspace(y_range[0], y_range[1], bins[1] + 1)      
-                xedges2 = xedges1
-                yedges2 = yedges1
+                # get back and front channels
+                negative_pez_indices = z < 0
+                positive_pez_indices = z >= 0
+
+                x_back = x[negative_pez_indices]
+                y_back = y[negative_pez_indices]
+                t_back = t[negative_pez_indices]
+
+                x_front = x[positive_pez_indices]
+                y_front = y[positive_pez_indices]
+                t_front = t[positive_pez_indices]
 
                 hit_dict_f = {}
                 for xi, yi, ti in zip(x_front,y_front,t_front): #loop over vector length
@@ -283,14 +274,15 @@ class EventDisplay(QMainWindow):
                     else:
                         hit_dict_f[(xi, yi)] = min(hit_dict_f[(xi, yi)], ti) 
 
-                h_front = np.zeros(bins)
-                # Fill the histogram with values from the dictionary
+                # Get times with values from the dictionary
+                front_npe_x = np.array([])
+                front_npe_y = np.array([])
+                front_npe   = np.array([])
                 for (xpos, ypos), tiso in hit_dict_f.items():
-                    xi = np.digitize(xpos, xedges1) - 1
-                    yi = np.digitize(ypos, yedges1) - 1
-                    h_front[xi, yi] = tiso
+                    front_npe_x = np.append(front_npe_x,xpos)
+                    front_npe_y = np.append(front_npe_y,ypos)
+                    front_npe   = np.append(front_npe,tiso)
                 
-
                 hit_dict_b = {}
                 for xi, yi, ti in zip(x_back,y_back,t_back): #loop over vector length
                     if (xi, yi) not in hit_dict_b: #getting the hit times of each fibre
@@ -298,12 +290,13 @@ class EventDisplay(QMainWindow):
                     else:
                         hit_dict_b[(xi, yi)] = min(hit_dict_b[(xi, yi)], ti) 
 
-                h_back  = np.zeros(bins)
+                back_npe_x = np.array([])
+                back_npe_y = np.array([])
+                back_npe   = np.array([])
                 for (xpos, ypos), tiso in hit_dict_b.items():
-                    xi = np.digitize(xpos, xedges1) - 1
-                    yi = np.digitize(ypos, yedges1) - 1
-                    h_back[xi, yi] = tiso
-                
+                    back_npe_x = np.append(back_npe_x,xpos)
+                    back_npe_y = np.append(back_npe_y,ypos)
+                    back_npe   = np.append(back_npe,tiso)
 
             elif self.med_time_radio.isChecked():
                 print("Median Time selected")
@@ -315,11 +308,16 @@ class EventDisplay(QMainWindow):
             vmin = min(back_npe.min(), front_npe.min())
             vmax = max(back_npe.max(), front_npe.max())
 
-            # Plot the 2D histograms
+            norm = LogNorm(vmin=vmin, vmax=vmax)
+
+            # Plot the scatter 
             self.ax1.clear()
             # sizes = back_npe
             sizes = 1
-            scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax)
+            if self.time_radio.isChecked():
+                scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, norm=norm)
+            else:
+                scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax)
             self.ax1.set_xlim(x_range)
             self.ax1.set_ylim(y_range)
 
@@ -327,29 +325,40 @@ class EventDisplay(QMainWindow):
             self.ax1.set_ylabel('Y (mm)')
             leg1_text  = '-Z Channels\n'
             leg1_text += f'{len(back_npe_x)} SiPMs\n'
-            leg1_text += f'{sum(back_npe)} PEs'
+            if self.time_radio.isChecked():
+                leg1_text += f'{min(back_npe):.1f} ns (1st PE)'
+            else:
+                leg1_text += f'{sum(back_npe)} PEs'
             style = dict(size=8, color='gray')
             self.ax1.text(800,600,leg1_text,**style)
 
             self.ax2.clear()
             # sizes = front_npe
             sizes = 1
-            scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax)
+            if self.time_radio.isChecked():
+                scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, norm=norm)
+            else:
+                scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax)
             self.ax2.set_xlim(x_range)
             self.ax2.set_ylim(y_range)
             self.ax2.set_xlabel('X (mm)')
             leg2_text  = '+Z Channels\n'
             leg2_text += f'{len(front_npe_x)} SiPMs\n'
-            leg2_text += f'{sum(front_npe)} PEs'
+            if self.time_radio.isChecked():
+                leg2_text += f'{min(front_npe):.1f} ns (1st PE)'
+            else:
+                leg2_text += f'{sum(front_npe)} PEs'
             self.ax2.text(800,600,leg2_text,**style)
-
 
             if self.colorbar:
                 self.colorbar.remove()
             divider = make_axes_locatable(self.ax2)
             cax = divider.append_axes("right", size="5%", pad=0.05)
-            # self.colorbar = self.figure.colorbar(im2, cax=cax)
-            self.colorbar = self.figure2.colorbar(scatter2, cax=cax)
+            if self.time_radio.isChecked():
+                self.colorbar = self.figure2.colorbar(scatter2, cax=cax, norm=norm)
+            else:
+                # self.colorbar = self.figure.colorbar(im2, cax=cax)
+                self.colorbar = self.figure2.colorbar(scatter2, cax=cax)
 
             # Draw dotted circles on the histograms
             circle1 = plt.Circle((0, 0), radius=900, color='red', fill=False, linestyle='dotted')
