@@ -225,6 +225,7 @@ class EventDisplay(QMainWindow):
             # Define fixed ranges for the histograms
             x_range = (-1250, 1250)
             y_range = (-1250, 1250)
+            hit_dict = {}
 
             if self.signal_radio.isChecked():
                 # Create a dictionary to map pmtid to their corresponding values
@@ -256,47 +257,29 @@ class EventDisplay(QMainWindow):
             elif self.time_radio.isChecked():
                 # Time MC data plotting
                 # get back and front channels
-                negative_pez_indices = z < 0
-                positive_pez_indices = z >= 0
 
-                x_back = x[negative_pez_indices]
-                y_back = y[negative_pez_indices]
-                t_back = t[negative_pez_indices]
-
-                x_front = x[positive_pez_indices]
-                y_front = y[positive_pez_indices]
-                t_front = t[positive_pez_indices]
-
-                hit_dict_f = {}
-                for xi, yi, ti in zip(x_front,y_front,t_front): #loop over vector length
-                    if (xi, yi) not in hit_dict_f: #getting the hit times of each fibre
-                        hit_dict_f[(xi, yi)] = [ti]
+                for xi, yi, zi, ti in zip(x,y,z,t): #loop over vector length
+                    if (xi, yi, zi) not in hit_dict: #getting the hit times of each fibre
+                        hit_dict[(xi, yi, zi)] = [ti]
                     else:
-                        hit_dict_f[(xi, yi)].append(ti)
+                        hit_dict[(xi, yi, zi)].append(ti)
 
                 # Get times with values from the dictionary
                 front_npe_x = np.array([])
                 front_npe_y = np.array([])
                 front_npe   = np.array([])
-                for (xpos, ypos), tiso in hit_dict_f.items():
-                    front_npe_x = np.append(front_npe_x,xpos)
-                    front_npe_y = np.append(front_npe_y,ypos)
-                    front_npe   = np.append(front_npe,min(tiso))
-                
-                hit_dict_b = {}
-                for xi, yi, ti in zip(x_back,y_back,t_back): #loop over vector length
-                    if (xi, yi) not in hit_dict_b: #getting the hit times of each fibre
-                        hit_dict_b[(xi, yi)] = [ti]
-                    else:
-                        hit_dict_b[(xi, yi)].append(ti) 
-
                 back_npe_x = np.array([])
                 back_npe_y = np.array([])
                 back_npe   = np.array([])
-                for (xpos, ypos), tiso in hit_dict_b.items():
-                    back_npe_x = np.append(back_npe_x,xpos)
-                    back_npe_y = np.append(back_npe_y,ypos)
-                    back_npe   = np.append(back_npe,min(tiso))
+                for (xi, yi, zi), tiso in hit_dict.items():
+                    if zi > 0:
+                        front_npe_x = np.append(front_npe_x,xi)
+                        front_npe_y = np.append(front_npe_y,yi)
+                        front_npe   = np.append(front_npe,min(tiso))
+                    else:
+                        back_npe_x = np.append(back_npe_x,xi)
+                        back_npe_y = np.append(back_npe_y,yi)
+                        back_npe   = np.append(back_npe,min(tiso))
 
             elif self.med_time_radio.isChecked():
                 print("Median Time selected")
