@@ -14,9 +14,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton
 from PyQt5.QtWidgets import QHBoxLayout, QSpinBox, QLabel, QRadioButton, QGroupBox, QTextEdit
-from matplotlib.gridspec import GridSpec
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-
 
 class EventDisplay(QMainWindow):
     def __init__(self, input_file):
@@ -352,7 +350,12 @@ class EventDisplay(QMainWindow):
 
             self.figure1.canvas.draw()
             self.figure2.canvas.draw()
-            
+
+            self.figure1.canvas.mpl_connect('scroll_event', lambda event: self.figure1.canvas.toolbar.zoom())
+            self.figure1.canvas.mpl_connect('button_press_event', lambda event: self.figure1.canvas.toolbar.pan())
+            self.figure2.canvas.mpl_connect('scroll_event', lambda event: self.figure2.canvas.toolbar.zoom())
+            self.figure2.canvas.mpl_connect('button_press_event', lambda event: self.figure2.canvas.toolbar.pan())
+
             if self.time_radio.isChecked():
                 self.ax3.clear()
                 counts, bin_edges, patches = self.ax3.hist(next(iter(hit_dict.values())), range(0,250))
