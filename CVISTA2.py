@@ -15,6 +15,8 @@ from matplotlib.colors import LogNorm
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton
 from PyQt5.QtWidgets import QHBoxLayout, QSpinBox, QLabel, QRadioButton, QGroupBox, QTextEdit
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 
 class EventDisplay(QMainWindow):
     def __init__(self, input_file):
@@ -73,8 +75,18 @@ class EventDisplay(QMainWindow):
         self.figure2, self.ax2 = plt.subplots()
 
         # Add figures to the layout
-        self.hist_layout.addWidget(self.figure1.canvas)
-        self.hist_layout.addWidget(self.figure2.canvas)
+        self.canvas1 = FigureCanvas(self.figure1)
+        self.canvas2 = FigureCanvas(self.figure2)
+        self.hist_layout.addWidget(self.canvas1)
+        self.hist_layout.addWidget(self.canvas2)
+
+        # Add toolbars
+        self.toolbar_layout = QHBoxLayout()
+        self.toolbar1 = NavigationToolbar(self.canvas1, self)
+        self.toolbar2 = NavigationToolbar(self.canvas2, self)
+        self.toolbar_layout.addWidget(self.toolbar1)
+        self.toolbar_layout.addWidget(self.toolbar2)
+        layout.addLayout(self.toolbar_layout)
 
         control_layout = QHBoxLayout()
         button_layout  = QVBoxLayout()
@@ -127,6 +139,14 @@ class EventDisplay(QMainWindow):
         if current_index > self.entry_spinbox.minimum():
             self.entry_spinbox.setValue(current_index - 1)
             self.plot_data()
+
+    def on_pick(self, event):
+        ind = event.ind[0]
+        x = event.artist.get_offsets()[ind, 0]
+        y = event.artist.get_offsets()[ind, 1]
+        c = event.artist.get_array()[ind]
+        info_text = f"Clicked point:\nX: {x:.2f}\nY: {y:.2f}\nValue: {c:.2f}"
+        self.text_edit.setText(info_text)
 
     def plot_data(self):
         try:
@@ -296,9 +316,9 @@ class EventDisplay(QMainWindow):
             # sizes = back_npe
             sizes = 1
             if self.time_radio.isChecked():
-                scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, norm=norm)
+                scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, norm=norm, picker=True)
             else:
-                scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax)
+                scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax, picker=True)
             self.ax1.set_xlim(x_range)
             self.ax1.set_ylim(y_range)
 
@@ -317,9 +337,9 @@ class EventDisplay(QMainWindow):
             # sizes = front_npe
             sizes = 1
             if self.time_radio.isChecked():
-                scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, norm=norm)
+                scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, norm=norm, picker=True)
             else:
-                scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax)
+                scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax, picker=True)
             self.ax2.set_xlim(x_range)
             self.ax2.set_ylim(y_range)
             self.ax2.set_xlabel('X (mm)')
@@ -351,10 +371,9 @@ class EventDisplay(QMainWindow):
             self.figure1.canvas.draw()
             self.figure2.canvas.draw()
 
-            self.figure1.canvas.mpl_connect('scroll_event', lambda event: self.figure1.canvas.toolbar.zoom())
-            self.figure1.canvas.mpl_connect('button_press_event', lambda event: self.figure1.canvas.toolbar.pan())
-            self.figure2.canvas.mpl_connect('scroll_event', lambda event: self.figure2.canvas.toolbar.zoom())
-            self.figure2.canvas.mpl_connect('button_press_event', lambda event: self.figure2.canvas.toolbar.pan())
+            # Connect the pick event to a handler function
+            self.figure1.canvas.mpl_connect('pick_event', self.on_pick)
+            self.figure2.canvas.mpl_connect('pick_event', self.on_pick)
 
             if self.time_radio.isChecked():
                 self.ax3.clear()
