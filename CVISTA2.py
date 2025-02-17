@@ -145,8 +145,9 @@ class EventDisplay(QMainWindow):
         x = event.artist.get_offsets()[ind, 0]
         y = event.artist.get_offsets()[ind, 1]
         c = event.artist.get_array()[ind]
-        info_text = f"Clicked point:\nX: {x:.2f}\nY: {y:.2f}\nValue: {c:.2f}"
-        self.text_edit.setText(info_text)
+        plot_id = event.artist.get_gid()
+        info_text = f"Clicked point on {plot_id}:\nX: {x:.2f}\nY: {y:.2f}\nValue: {c:.2f}"
+        print(info_text)
 
     def plot_data(self):
         try:
@@ -319,6 +320,7 @@ class EventDisplay(QMainWindow):
                 scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, norm=norm, picker=True)
             else:
                 scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax, picker=True)
+            scatter1.set_gid('plot1')
             self.ax1.set_xlim(x_range)
             self.ax1.set_ylim(y_range)
 
@@ -340,6 +342,7 @@ class EventDisplay(QMainWindow):
                 scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, norm=norm, picker=True)
             else:
                 scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax, picker=True)
+            scatter2.set_gid('plot2')
             self.ax2.set_xlim(x_range)
             self.ax2.set_ylim(y_range)
             self.ax2.set_xlabel('X (mm)')
