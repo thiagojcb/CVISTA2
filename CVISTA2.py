@@ -149,6 +149,39 @@ class EventDisplay(QMainWindow):
         info_text = f"Clicked point on {plot_id}:\nX: {x:.2f}\nY: {y:.2f}\nValue: {c:.2f}"
         print(info_text)
 
+    def update_annot(self, ind, scatter, annot):
+        pos = scatter.get_offsets()[ind["ind"][0]]
+        annot.xy = pos
+        text = f"X: {pos[0]:.2f}\nY: {pos[1]:.2f}\nValue: {scatter.get_array()[ind['ind'][0]]:.2f}"
+        annot.set_text(text)
+        annot.get_bbox_patch().set_alpha(0.4)
+
+    def hover(self, event):
+        vis1 = self.annot1.get_visible()
+        vis2 = self.annot2.get_visible()
+        if event.inaxes == self.ax1:
+            scatter = self.ax1.collections[0]
+            cont, ind = scatter.contains(event)
+            if cont:
+                self.update_annot(ind, scatter, self.annot1)
+                self.annot1.set_visible(True)
+                self.figure1.canvas.draw_idle()
+                return
+        elif event.inaxes == self.ax2:
+            scatter = self.ax2.collections[0]
+            cont, ind = scatter.contains(event)
+            if cont:
+                self.update_annot(ind, scatter, self.annot2)
+                self.annot2.set_visible(True)
+                self.figure2.canvas.draw_idle()
+                return
+        if vis1:
+            self.annot1.set_visible(False)
+            self.figure1.canvas.draw_idle()
+        if vis2:
+            self.annot2.set_visible(False)
+            self.figure2.canvas.draw_idle()
+
     def plot_data(self):
         try:
             # Read data from ROOT file
@@ -373,6 +406,23 @@ class EventDisplay(QMainWindow):
 
             self.figure1.canvas.draw()
             self.figure2.canvas.draw()
+
+            # Create an annotation object
+            self.annot1 = self.ax1.annotate("", xy=(0,0), xytext=(20,20),
+                                           textcoords="offset points",
+                                           bbox=dict(boxstyle="round", fc="w"),
+                                           arrowprops=dict(arrowstyle="->"))
+            self.annot1.set_visible(False)
+
+            self.annot2 = self.ax2.annotate("", xy=(0,0), xytext=(20,20),
+                                           textcoords="offset points",
+                                           bbox=dict(boxstyle="round", fc="w"),
+                                           arrowprops=dict(arrowstyle="->"))
+            self.annot2.set_visible(False)
+
+            # Connect the motion_notify_event to update the annotation
+            self.figure1.canvas.mpl_connect("motion_notify_event", self.hover)
+            self.figure2.canvas.mpl_connect("motion_notify_event", self.hover)
 
             # Connect the pick event to a handler function
             self.figure1.canvas.mpl_connect('pick_event', self.on_pick)
