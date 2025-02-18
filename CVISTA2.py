@@ -24,6 +24,9 @@ class EventDisplay(QMainWindow):
         self.input_file = input_file
         self.initUI()
         self.colorbar = None
+        self.reverse_pmt_dict = {}
+        self.pmt_dict = {}
+
 
     def initUI(self):
         self.setWindowTitle('Event Display')
@@ -144,10 +147,19 @@ class EventDisplay(QMainWindow):
         ind = event.ind[0]
         x = event.artist.get_offsets()[ind, 0]
         y = event.artist.get_offsets()[ind, 1]
-        c = event.artist.get_array()[ind]
-        plot_id = event.artist.get_gid()
-        info_text = f"Clicked point on {plot_id}:\nX: {x:.2f}\nY: {y:.2f}\nValue: {c:.2f}"
-        print(info_text)
+        # c = event.artist.get_array()[ind]
+        z = float(event.artist.get_gid())
+        pmt_id = self.get_pmtID(x,y,z)
+        self.ax3.clear()
+        times = self.hit_dict.get((x,y,z),None)
+        counts, bin_edges, patches = self.ax3.hist(times, range(0,250))
+        leg3_text  = f'SiPM#{pmt_id} ({x:.2f},{y:.2f},{z:.2f}) mm\n'
+        leg3_text += f'{len(times)} PEs'
+        style = dict(size=8, color='gray')
+        self.ax3.text(120,1.06*np.max(counts),leg3_text,**style)
+        self.ax3.set_xlabel('PE time (ns)')
+        self.ax3.set_ylabel('Entries')
+        self.figure3.canvas.draw()
 
     def update_annot(self, ind, scatter, annot):
         pos = scatter.get_offsets()[ind["ind"][0]]
@@ -181,6 +193,10 @@ class EventDisplay(QMainWindow):
         if vis2:
             self.annot2.set_visible(False)
             self.figure2.canvas.draw_idle()
+
+    def get_pmtID(self,x,y,z):
+        coords = (x, y, z)
+        return self.reverse_pmt_dict.get(coords, None)
 
     def plot_data(self):
         try:
@@ -277,16 +293,23 @@ class EventDisplay(QMainWindow):
             # Define fixed ranges for the histograms
             x_range = (-1250, 1250)
             y_range = (-1250, 1250)
-            hit_dict = {}
+            self.hit_dict = {}
+            for xi, yi, zi, ti in zip(x,y,z,t): #loop over vector length
+                if (xi, yi, zi) not in self.hit_dict: #getting the hit times of each fibre
+                    self.hit_dict[(xi, yi, zi)] = [ti]
+                else:
+                    self.hit_dict[(xi, yi, zi)].append(ti)
+
+            # Create a dictionary to map pmtid to their corresponding values
+            self.pmt_dict = {id: (x, y, z) for id, x, y, z in zip(pmtID, pmtX, pmtY, pmtZ)}
+            self.reverse_pmt_dict = {coords: id for id, coords in self.pmt_dict.items()}
 
             if self.signal_radio.isChecked():
-                # Create a dictionary to map pmtid to their corresponding values
-                pmt_dict = {id: (x, y, z) for id, x, y, z in zip(pmtID, pmtX, pmtY, pmtZ)}
 
                 # Extract the corresponding pmtx, pmty, and pmtz values for the flagged pmtids
-                flagged_x = np.array([pmt_dict[id][0] for id in mcPMTID])
-                flagged_y = np.array([pmt_dict[id][1] for id in mcPMTID])
-                flagged_z = np.array([pmt_dict[id][2] for id in mcPMTID])
+                flagged_x = np.array([self.pmt_dict[id][0] for id in mcPMTID])
+                flagged_y = np.array([self.pmt_dict[id][1] for id in mcPMTID])
+                flagged_z = np.array([self.pmt_dict[id][2] for id in mcPMTID])
 
                 back_npe   = mcPMTNPE[flagged_z < 0]
                 back_npe_x = flagged_x[flagged_z < 0]
@@ -308,13 +331,6 @@ class EventDisplay(QMainWindow):
 
             elif self.time_radio.isChecked():
                 # Time MC data plotting
-                # get back and front channels
-
-                for xi, yi, zi, ti in zip(x,y,z,t): #loop over vector length
-                    if (xi, yi, zi) not in hit_dict: #getting the hit times of each fibre
-                        hit_dict[(xi, yi, zi)] = [ti]
-                    else:
-                        hit_dict[(xi, yi, zi)].append(ti)
 
                 # Get times with values from the dictionary
                 front_npe_x = np.array([])
@@ -323,7 +339,7 @@ class EventDisplay(QMainWindow):
                 back_npe_x = np.array([])
                 back_npe_y = np.array([])
                 back_npe   = np.array([])
-                for (xi, yi, zi), tiso in hit_dict.items():
+                for (xi, yi, zi), tiso in self.hit_dict.items():
                     if zi > 0:
                         front_npe_x = np.append(front_npe_x,xi)
                         front_npe_y = np.append(front_npe_y,yi)
@@ -353,7 +369,7 @@ class EventDisplay(QMainWindow):
                 scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, norm=norm, picker=True)
             else:
                 scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax, picker=True)
-            scatter1.set_gid('plot1')
+            scatter1.set_gid('-2000') # HARD CODE Z!!!
             self.ax1.set_xlim(x_range)
             self.ax1.set_ylim(y_range)
 
@@ -375,7 +391,7 @@ class EventDisplay(QMainWindow):
                 scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, norm=norm, picker=True)
             else:
                 scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax, picker=True)
-            scatter2.set_gid('plot2')
+            scatter2.set_gid('2000') # HARD CODE Z!!!
             self.ax2.set_xlim(x_range)
             self.ax2.set_ylim(y_range)
             self.ax2.set_xlabel('X (mm)')
@@ -427,18 +443,6 @@ class EventDisplay(QMainWindow):
             # Connect the pick event to a handler function
             self.figure1.canvas.mpl_connect('pick_event', self.on_pick)
             self.figure2.canvas.mpl_connect('pick_event', self.on_pick)
-
-            if self.time_radio.isChecked():
-                self.ax3.clear()
-                counts, bin_edges, patches = self.ax3.hist(next(iter(hit_dict.values())), range(0,250))
-                leg3_text  = 'PE time distribution\n'
-                (xi, yi, zi), ti = next(iter(hit_dict.items()))
-                leg3_text += f'Channel ({xi},{yi}) mm'
-                style = dict(size=8, color='gray')
-                self.ax3.text(150,0.9*np.max(counts),leg3_text,**style)
-                self.ax3.set_xlabel('PE time (ns)')
-                self.ax3.set_ylabel('Entries')
-                self.figure3.canvas.draw()
 
         except Exception as e:
             print(f"An error occurred: {e}")
