@@ -36,7 +36,7 @@ class EventDisplay(QMainWindow):
         hBox = QHBoxLayout()
 
         # MC group box
-        group_MC_box = QGroupBox("MC")
+        group_MC_box = QGroupBox("Truth")
         vbox1 = QVBoxLayout()        
         self.signal_radio = QRadioButton('nPE')
         self.time_radio = QRadioButton('First Hit Time')
@@ -50,7 +50,7 @@ class EventDisplay(QMainWindow):
         self.med_time_radio.setDisabled(True) # functionality not available yet
 
         # DATA group box
-        group_Data_box = QGroupBox("Data")
+        group_Data_box = QGroupBox("Readout")
         vbox2 = QVBoxLayout()        
         self.charge_radio = QRadioButton('SiPM Charge')
         self.rise_time_radio = QRadioButton('SiPM Time')
