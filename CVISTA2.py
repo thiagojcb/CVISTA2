@@ -277,6 +277,10 @@ class EventDisplay(QMainWindow):
             z_th = ak.to_numpy(z_th)
             summary_text += f"{z_th[0]:.1f}) mm\n"
 
+            EnDep = tree['scintEdepQuenched'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+            EnDep = ak.to_numpy(EnDep)
+            summary_text += f"Deposited energy on scintillator: {EnDep[0]:.1f} MeV\n"
+
             x = tree['mcPEx'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             x = ak.to_numpy(x)
 
