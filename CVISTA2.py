@@ -463,7 +463,7 @@ class EventDisplay(QMainWindow):
                 scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, norm=norm, picker=True)
             else:
                 scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax, picker=True)
-            scatter1.set_gid(str(-1*self.half_length)) # HARD CODE Z!!!
+            scatter1.set_gid(str(-1*self.half_length))
             self.ax1.set_xlim(x_range)
             self.ax1.set_ylim(y_range)
 
@@ -487,7 +487,7 @@ class EventDisplay(QMainWindow):
                 scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, norm=norm, picker=True)
             else:
                 scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax, picker=True)
-            scatter2.set_gid(str(self.half_length)) # HARD CODE Z!!!
+            scatter2.set_gid(str(self.half_length))
             self.ax2.set_xlim(x_range)
             self.ax2.set_ylim(y_range)
             self.ax2.set_xlabel('X (mm)')
