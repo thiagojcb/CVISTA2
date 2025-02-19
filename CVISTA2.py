@@ -286,11 +286,6 @@ class EventDisplay(QMainWindow):
             z = tree['mcPEz'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             z = ak.to_numpy(z)
 
-            if z[0] < 0:
-                self.half_length = -1*z[0]
-            else:
-                self.half_length = z[0]
-
             t = tree['mcPEHitTime'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             t = ak.to_numpy(t)
 
@@ -328,6 +323,20 @@ class EventDisplay(QMainWindow):
                 summary_text += "Z reco: NaN\n"
 
             self.text_edit.setText(summary_text)
+
+            if len(z) == 0: # don't draw anything, in case there isn't PE (eg, gamma didn't interact on scinti volume)
+                self.ax1.clear()
+                self.ax2.clear()
+                self.ax3.clear()
+                self.figure1.canvas.draw()
+                self.figure2.canvas.draw()
+                self.figure3.canvas.draw()
+                return
+
+            if z[0] < 0:
+                self.half_length = -1*z[0]
+            else:
+                self.half_length = z[0]
 
             # Define fixed ranges for the histograms
             x_range = (-1.4*self.scint_radius, 1.4*self.scint_radius)
@@ -456,7 +465,6 @@ class EventDisplay(QMainWindow):
             vmax = max(back_npe.max(), front_npe.max())
 
             norm = LogNorm(vmin=vmin, vmax=vmax)
-
             # Plot the scatter 
             self.ax1.clear()
             # sizes = back_npe
