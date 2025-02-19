@@ -364,7 +364,7 @@ class EventDisplay(QMainWindow):
                         back_npe   = np.append(back_npe,min(tiso))
 
             elif self.med_time_radio.isChecked():
-                print("Median Time selected")
+                print("Median Time selected, but not implemented yet!")
 
             cmap = plt.cm.viridis
             cmap.set_bad(color='white')  # Set color for masked values
@@ -436,6 +436,23 @@ class EventDisplay(QMainWindow):
 
             self.figure1.canvas.draw()
             self.figure2.canvas.draw()
+
+            # Displaying times of the PEs
+            front_pe_times = []
+            back_pe_times  = []
+            for (xi, yi, zi), tiso in self.hit_dict.items():
+                if zi > 0:
+                    front_pe_times += tiso
+                else:
+                    back_pe_times += tiso
+
+            self.ax3.clear()
+            countsF, bin_edgesF, patchesF = self.ax3.hist(front_pe_times, bins=range(0,250), alpha=0.5, label=f'Front Channels ({len(front_pe_times)} PEs)', color='blue')
+            countsB, bin_edgesB, patchesB = self.ax3.hist(back_pe_times, bins=range(0,250), alpha=0.5, label=f'Back Channels ({len(back_pe_times)} PEs)', color='red')
+            self.ax3.set_xlabel('PE time (ns)')
+            self.ax3.set_ylabel('Entries')
+            self.ax3.legend()
+            self.figure3.canvas.draw()
 
             # Create an annotation object
             self.annot1 = self.ax1.annotate("", xy=(0,0), xytext=(20,20),
