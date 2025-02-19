@@ -13,7 +13,7 @@ import awkward as ak
 import matplotlib.pyplot as plt
 from particle import Particle
 from matplotlib.colors import LogNorm
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton, QButtonGroup
 from PyQt5.QtWidgets import QHBoxLayout, QSpinBox, QLabel, QRadioButton, QGroupBox, QTextEdit
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -71,11 +71,15 @@ class EventDisplay(QMainWindow):
         vbox2.addWidget(self.rise_time_radio)
         group_Data_box.setLayout(vbox2)
 
-        self.charge_radio.setDisabled(True)
-        self.rise_time_radio.setDisabled(True)
-
         hBox.addWidget(group_MC_box)
         hBox.addWidget(group_Data_box)
+
+        self.radio_button_group = QButtonGroup()
+        self.radio_button_group.addButton(self.signal_radio)
+        self.radio_button_group.addButton(self.time_radio)
+        self.radio_button_group.addButton(self.med_time_radio)
+        self.radio_button_group.addButton(self.charge_radio)
+        self.radio_button_group.addButton(self.rise_time_radio)
 
         layout.addLayout(hBox)
 
@@ -234,8 +238,13 @@ class EventDisplay(QMainWindow):
 
             # check if branches exist
             branches = tree.keys()
-            reco_exists = 'x_FitCentroid' in branches
+            reco_exists    = 'x_FitCentroid' in branches
+            readout_exists = 'hitPMTDigitizedTime' in branches
 
+            if not readout_exists:
+                self.charge_radio.setDisabled(True)
+                self.rise_time_radio.setDisabled(True)
+        
             pmtID = meta["pmtId"].array()[0]
             pmtID = ak.to_numpy(pmtID)
             pmtX  = meta["pmtX"].array()[0]
@@ -381,6 +390,10 @@ class EventDisplay(QMainWindow):
 
             elif self.med_time_radio.isChecked():
                 print("Median Time selected, but not implemented yet!")
+            elif self.charge_radio.isChecked():
+                print("Charge selected, but not implemented yet!")
+            elif self.rise_time_radio.isChecked():
+                print("Rise Time selected, but not implemented yet!")
 
             # Determine the common color scale range
             vmin = min(back_npe.min(), front_npe.min())
