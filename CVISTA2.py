@@ -252,21 +252,21 @@ class EventDisplay(QMainWindow):
             mcpdg    = tree['mcpdg'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             mcpdg    = ak.to_numpy(mcpdg)
             mcpdg    = self.pdg_to_particle_name(int(mcpdg[0]))
-            summary_text += f"MC particle: {mcpdg}\n"
+            summary_text += f"Simulated particle: {mcpdg} "
 
             mcke     = tree['mcke'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             mcke     = ak.to_numpy(mcke)
-            summary_text += f"KE: {mcke[0]:.1f} MeV\n"
+            summary_text += f"({mcke[0]:.1f} MeV) at "
 
             x_th = tree['mcx'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             x_th = ak.to_numpy(x_th)
-            summary_text +=  f"X: {x_th[0]:.1f} mm, "
+            summary_text +=  f"({x_th[0]:.1f}, "
             y_th = tree['mcy'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             y_th = ak.to_numpy(y_th)
-            summary_text += f"Y: {y_th[0]:.1f} mm, "
+            summary_text += f"{y_th[0]:.1f}, "
             z_th = tree['mcz'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             z_th = ak.to_numpy(z_th)
-            summary_text += f"Z: {z_th[0]:.1f} mm\n"
+            summary_text += f"{z_th[0]:.1f}) mm\n"
 
             x = tree['mcPEx'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             x = ak.to_numpy(x)
