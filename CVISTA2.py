@@ -418,8 +418,34 @@ class EventDisplay(QMainWindow):
                 front_npe_x = front_npe_x[withPE]
                 front_npe_y = front_npe_y[withPE]
             elif self.rise_time_radio.isChecked():
-                print("Rise Time selected, but not implemented yet!")
+                hitPMTID = tree['hitPMTID'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+                hitPMTID = ak.to_numpy(hitPMTID)
 
+                hitPMTCharge = tree['hitPMTDigitizedTime'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+                hitPMTCharge = ak.to_numpy(hitPMTCharge)
+
+                # Extract the corresponding pmtx, pmty, and pmtz values for the flagged pmtids
+                flagged_x = np.array([self.pmt_dict[id][0] for id in hitPMTID])
+                flagged_y = np.array([self.pmt_dict[id][1] for id in hitPMTID])
+                flagged_z = np.array([self.pmt_dict[id][2] for id in hitPMTID])
+
+                back_npe   = hitPMTCharge[flagged_z < 0]
+                back_npe_x = flagged_x[flagged_z < 0]
+                back_npe_y = flagged_y[flagged_z < 0]
+                withPE    = back_npe>0
+
+                back_npe   = back_npe[withPE]
+                back_npe_x = back_npe_x[withPE]
+                back_npe_y = back_npe_y[withPE]
+
+                front_npe   = hitPMTCharge[flagged_z > 0]
+                front_npe_x = flagged_x[flagged_z > 0]
+                front_npe_y = flagged_y[flagged_z > 0]
+                withPE    = front_npe>0
+
+                front_npe   = front_npe[withPE]
+                front_npe_x = front_npe_x[withPE]
+                front_npe_y = front_npe_y[withPE]
             elif self.med_time_radio.isChecked():
                 print("Median Time selected, but not implemented yet!")
 
@@ -449,7 +475,7 @@ class EventDisplay(QMainWindow):
                 leg1_text += f'{min(back_npe):.1f} ns (1st PE)'
             elif self.charge_radio.isChecked():
                 leg1_text += f'{sum(back_npe):.1f} DUQ'
-            else:
+            elif self.signal_radio.isChecked():
                 leg1_text += f'{sum(back_npe)} PEs'
             style = dict(size=8, color='gray')
             self.ax1.text(self.scint_radius*0.75,self.scint_radius,leg1_text,**style)
@@ -471,7 +497,7 @@ class EventDisplay(QMainWindow):
                 leg2_text += f'{min(front_npe):.1f} ns (1st PE)'
             elif self.charge_radio.isChecked():
                 leg2_text += f'{sum(front_npe):.1f} DUQ'
-            else:
+            elif self.signal_radio.isChecked():
                 leg2_text += f'{sum(front_npe)} PEs'
             self.ax2.text(self.scint_radius*0.75,self.scint_radius,leg2_text,**style)
 
