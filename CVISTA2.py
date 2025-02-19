@@ -40,7 +40,7 @@ class EventDisplay(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle('Event Display')
-        self.setGeometry(100, 100, 1200, 600)  # Adjusted window size
+        self.setGeometry(100, 100, 1000, 1200)  # Adjusted window size
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -412,7 +412,7 @@ class EventDisplay(QMainWindow):
             else:
                 leg1_text += f'{sum(back_npe)} PEs'
             style = dict(size=8, color='gray')
-            self.ax1.text(800,600,leg1_text,**style)
+            self.ax1.text(self.scint_radius*0.75,self.scint_radius,leg1_text,**style)
 
             self.ax2.clear()
             # sizes = front_npe
@@ -431,7 +431,7 @@ class EventDisplay(QMainWindow):
                 leg2_text += f'{min(front_npe):.1f} ns (1st PE)'
             else:
                 leg2_text += f'{sum(front_npe)} PEs'
-            self.ax2.text(800,600,leg2_text,**style)
+            self.ax2.text(self.scint_radius*0.75,self.scint_radius,leg2_text,**style)
 
             if self.colorbar:
                 self.colorbar.remove()
