@@ -394,6 +394,8 @@ class EventDisplay(QMainWindow):
 
                 hitPMTCharge = tree['hitPMTDigitizedCharge'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
                 hitPMTCharge = ak.to_numpy(hitPMTCharge)
+                self.hitPMTTime = tree['hitPMTDigitizedTime'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+                self.hitPMTTime = ak.to_numpy(self.hitPMTTime)
 
                 # Extract the corresponding pmtx, pmty, and pmtz values for the flagged pmtids
                 flagged_x = np.array([self.pmt_dict[id][0] for id in hitPMTID])
@@ -421,15 +423,15 @@ class EventDisplay(QMainWindow):
                 hitPMTID = tree['hitPMTID'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
                 hitPMTID = ak.to_numpy(hitPMTID)
 
-                hitPMTCharge = tree['hitPMTDigitizedTime'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
-                hitPMTCharge = ak.to_numpy(hitPMTCharge)
+                self.hitPMTTime = tree['hitPMTDigitizedTime'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+                self.hitPMTTime = ak.to_numpy(self.hitPMTTime)
 
                 # Extract the corresponding pmtx, pmty, and pmtz values for the flagged pmtids
                 flagged_x = np.array([self.pmt_dict[id][0] for id in hitPMTID])
                 flagged_y = np.array([self.pmt_dict[id][1] for id in hitPMTID])
                 flagged_z = np.array([self.pmt_dict[id][2] for id in hitPMTID])
 
-                back_npe   = hitPMTCharge[flagged_z < 0]
+                back_npe   = self.hitPMTTime[flagged_z < 0]
                 back_npe_x = flagged_x[flagged_z < 0]
                 back_npe_y = flagged_y[flagged_z < 0]
                 withPE    = back_npe>0
@@ -438,7 +440,7 @@ class EventDisplay(QMainWindow):
                 back_npe_x = back_npe_x[withPE]
                 back_npe_y = back_npe_y[withPE]
 
-                front_npe   = hitPMTCharge[flagged_z > 0]
+                front_npe   = self.hitPMTTime[flagged_z > 0]
                 front_npe_x = flagged_x[flagged_z > 0]
                 front_npe_y = flagged_y[flagged_z > 0]
                 withPE    = front_npe>0
@@ -521,24 +523,36 @@ class EventDisplay(QMainWindow):
             self.figure1.canvas.draw()
             self.figure2.canvas.draw()
 
-            # Displaying times of the PEs
-            front_pe_times = []
-            back_pe_times  = []
-            for (xi, yi, zi), tiso in self.hit_dict.items():
-                if zi > 0:
-                    front_pe_times += tiso
-                else:
-                    back_pe_times += tiso
-
             self.ax3.clear()
-            overflow_countF = sum(1 for time in front_pe_times if time > 250)
-            overflow_countB = sum(1 for time in back_pe_times if time > 250)
-            countsF, bin_edgesF, patchesF = self.ax3.hist(front_pe_times, bins=range(0,251), alpha=0.5, label=f'Front Channels ({overflow_countF} overflow PEs)', color='blue')
-            countsB, bin_edgesB, patchesB = self.ax3.hist(back_pe_times, bins=range(0,251), alpha=0.5, label=f'Back Channels ({overflow_countB} overflow PEs)', color='red')
-            self.ax3.set_xlabel('PE time (ns)')
-            self.ax3.set_ylabel(f'Entries / {bin_edgesF[1]-bin_edgesF[0]} ns')
-            self.ax3.legend()
-            self.figure3.canvas.draw()
+            if not (self.rise_time_radio.isChecked() or self.charge_radio.isChecked()):
+                # Displaying times of the PEs
+                front_pe_times = []
+                back_pe_times  = []
+                for (xi, yi, zi), tiso in self.hit_dict.items():
+                    if zi > 0:
+                        front_pe_times += tiso
+                    else:
+                        back_pe_times += tiso
+
+                overflow_countF = sum(1 for time in front_pe_times if time > 250)
+                overflow_countB = sum(1 for time in back_pe_times if time > 250)
+                countsF, bin_edgesF, patchesF = self.ax3.hist(front_pe_times, bins=range(0,251), alpha=0.5, label=f'Front Channels ({overflow_countF} overflow PEs)', color='blue')
+                countsB, bin_edgesB, patchesB = self.ax3.hist(back_pe_times, bins=range(0,251), alpha=0.5, label=f'Back Channels ({overflow_countB} overflow PEs)', color='red')
+                self.ax3.set_xlabel('PE time (ns)')
+                self.ax3.set_ylabel(f'Entries / {bin_edgesF[1]-bin_edgesF[0]} ns')
+                self.ax3.legend()
+                self.figure3.canvas.draw()
+            else:
+                flagged_z  = np.array([self.pmt_dict[id][2] for id in hitPMTID])
+                back_time  = self.hitPMTTime[flagged_z < 0]
+                front_time = self.hitPMTTime[flagged_z > 0]
+                countsF, bin_edgesF, patchesF = self.ax3.hist(front_time, bins=range(0,500,2), alpha=0.5, label='Front Channels', color='blue')
+                countsB, bin_edgesB, patchesB = self.ax3.hist(back_time, bins=range(0,500,2), alpha=0.5, label='Back Channels', color='red')
+                self.ax3.set_xlabel('SiPM time (tick)')
+                self.ax3.set_ylabel(f'Entries / {bin_edgesF[1]-bin_edgesF[0]} tick')
+                self.ax3.legend()
+                self.figure3.canvas.draw()
+
 
             # Create an annotation object
             self.annot1 = self.ax1.annotate("", xy=(0,0), xytext=(20,20),
