@@ -20,7 +20,17 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 
 class EventDisplay(QMainWindow):
+    """
+    A GUI application for displaying event data from ratpac ntuple files.
+    """
     def __init__(self, input_file, evt_no = None):
+        """
+        Initializes the EventDisplay with the given input file and event number.
+
+        Args:
+            input_file (str): Path to the input ntuple file.
+            evt_no (int, optional): Event number to display initially.
+        """
         super().__init__()
         self.input_file = input_file
         self.evt_no = evt_no
@@ -83,11 +93,10 @@ class EventDisplay(QMainWindow):
 
         layout.addLayout(hBox)
 
-        # Create a layout for the SiPMs
+        # Create a layout for the SiPMs map
         self.hist_layout = QHBoxLayout()
         layout.addLayout(self.hist_layout)
 
-        # Create a figure with shared y-axis
         self.figure1, self.ax1 = plt.subplots()
         self.figure2, self.ax2 = plt.subplots()
 
@@ -109,7 +118,7 @@ class EventDisplay(QMainWindow):
         button_layout  = QVBoxLayout()
         display_layout = QHBoxLayout()
 
-        # Event selector
+        # Event selector option
         self.entry_label = QLabel('Select Entry:')
         display_layout.addWidget(self.entry_label)
 
@@ -123,16 +132,16 @@ class EventDisplay(QMainWindow):
         display_layout.addWidget(self.plot_button)
 
         button_layout.addLayout(display_layout)
-
-        # Next button
-        self.next_button = QPushButton('Display next')
-        self.next_button.clicked.connect(self.display_next_event)
-        display_layout.addWidget(self.next_button)
         
         # Previous button
         self.prev_button = QPushButton('Display previous')
         self.prev_button.clicked.connect(self.display_prev_event)
         display_layout.addWidget(self.prev_button)
+
+        # Next button
+        self.next_button = QPushButton('Display next')
+        self.next_button.clicked.connect(self.display_next_event)
+        display_layout.addWidget(self.next_button)
 
         # Text with basic event info
         self.text_edit = QTextEdit()
@@ -140,6 +149,7 @@ class EventDisplay(QMainWindow):
 
         control_layout.addLayout(button_layout)
         
+        # Figure for time histograms
         self.figure3, self.ax3 = plt.subplots()
         control_layout.addWidget(self.figure3.canvas)
         
@@ -382,8 +392,7 @@ class EventDisplay(QMainWindow):
                 front_npe_y = front_npe_y[withPE]
 
             elif self.time_radio.isChecked():
-                # Time MC data plotting
-
+                # First hit on SiPM plotting
                 # Get times with values from the dictionary
                 front_npe_x = np.array([])
                 front_npe_y = np.array([])
