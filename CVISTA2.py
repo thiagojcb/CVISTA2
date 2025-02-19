@@ -453,8 +453,10 @@ class EventDisplay(QMainWindow):
                     back_pe_times += tiso
 
             self.ax3.clear()
-            countsF, bin_edgesF, patchesF = self.ax3.hist(front_pe_times, bins=range(0,250), alpha=0.5, label=f'Front Channels ({len(front_pe_times)} PEs)', color='blue')
-            countsB, bin_edgesB, patchesB = self.ax3.hist(back_pe_times, bins=range(0,250), alpha=0.5, label=f'Back Channels ({len(back_pe_times)} PEs)', color='red')
+            overflow_countF = sum(1 for time in front_pe_times if time > 250)
+            overflow_countB = sum(1 for time in back_pe_times if time > 250)
+            countsF, bin_edgesF, patchesF = self.ax3.hist(front_pe_times, bins=range(0,250), alpha=0.5, label=f'Front Channels ({overflow_countF} overflow PEs)', color='blue')
+            countsB, bin_edgesB, patchesB = self.ax3.hist(back_pe_times, bins=range(0,250), alpha=0.5, label=f'Back Channels ({overflow_countB} overflow PEs)', color='red')
             self.ax3.set_xlabel('PE time (ns)')
             self.ax3.set_ylabel('Entries')
             self.ax3.legend()
