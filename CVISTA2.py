@@ -165,8 +165,7 @@ class EventDisplay(QMainWindow):
         if max(times) > 250:
             bin_edges = np.arange(0, max(times) + 1, 1)  # 1ns bin width
         else:
-            bin_edges = range(0,250)
-        # counts, bin_edges, patches = self.ax3.hist(times, range(0,250))
+            bin_edges = range(0,251)
         counts, bin_edges, patches = self.ax3.hist(times, bins=bin_edges)
         leg3_text  = f'SiPM#{pmt_id} ({x:.2f},{y:.2f},{z:.2f}) mm\n'
         leg3_text += f'{len(times)} PEs'
@@ -455,10 +454,10 @@ class EventDisplay(QMainWindow):
             self.ax3.clear()
             overflow_countF = sum(1 for time in front_pe_times if time > 250)
             overflow_countB = sum(1 for time in back_pe_times if time > 250)
-            countsF, bin_edgesF, patchesF = self.ax3.hist(front_pe_times, bins=range(0,250), alpha=0.5, label=f'Front Channels ({overflow_countF} overflow PEs)', color='blue')
-            countsB, bin_edgesB, patchesB = self.ax3.hist(back_pe_times, bins=range(0,250), alpha=0.5, label=f'Back Channels ({overflow_countB} overflow PEs)', color='red')
+            countsF, bin_edgesF, patchesF = self.ax3.hist(front_pe_times, bins=range(0,251), alpha=0.5, label=f'Front Channels ({overflow_countF} overflow PEs)', color='blue')
+            countsB, bin_edgesB, patchesB = self.ax3.hist(back_pe_times, bins=range(0,251), alpha=0.5, label=f'Back Channels ({overflow_countB} overflow PEs)', color='red')
             self.ax3.set_xlabel('PE time (ns)')
-            self.ax3.set_ylabel('Entries')
+            self.ax3.set_ylabel(f'Entries / {bin_edgesF[1]-bin_edgesF[0]} ns')
             self.ax3.legend()
             self.figure3.canvas.draw()
 
