@@ -382,9 +382,6 @@ class EventDisplay(QMainWindow):
             elif self.med_time_radio.isChecked():
                 print("Median Time selected, but not implemented yet!")
 
-            cmap = plt.cm.viridis
-            cmap.set_bad(color='white')  # Set color for masked values
-
             # Determine the common color scale range
             vmin = min(back_npe.min(), front_npe.min())
             vmax = max(back_npe.max(), front_npe.max())
