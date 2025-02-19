@@ -161,13 +161,19 @@ class EventDisplay(QMainWindow):
         pmt_id = self.get_pmtID(x,y,z)
         self.ax3.clear()
         times = self.hit_dict.get((x,y,z),None)
-        counts, bin_edges, patches = self.ax3.hist(times, range(0,250))
+        bin_edges = None
+        if max(times) > 250:
+            bin_edges = np.arange(0, max(times) + 1, 1)  # 1ns bin width
+        else:
+            bin_edges = range(0,250)
+        # counts, bin_edges, patches = self.ax3.hist(times, range(0,250))
+        counts, bin_edges, patches = self.ax3.hist(times, bins=bin_edges)
         leg3_text  = f'SiPM#{pmt_id} ({x:.2f},{y:.2f},{z:.2f}) mm\n'
         leg3_text += f'{len(times)} PEs'
         style = dict(size=8, color='gray')
         self.ax3.text(120,1.06*np.max(counts),leg3_text,**style)
         self.ax3.set_xlabel('PE time (ns)')
-        self.ax3.set_ylabel('Entries')
+        self.ax3.set_ylabel(f'Entries / {(bin_edges[1]-bin_edges[0]):.1f} ns')
         self.figure3.canvas.draw()
 
     def update_annot(self, ind, scatter, annot):
