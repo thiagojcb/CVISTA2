@@ -459,7 +459,7 @@ class EventDisplay(QMainWindow):
             self.ax1.clear()
             # sizes = back_npe
             sizes = 5
-            if self.time_radio.isChecked():
+            if self.time_radio.isChecked() or self.rise_time_radio.isChecked():
                 scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, norm=norm, picker=True)
             else:
                 scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax, picker=True)
@@ -483,7 +483,7 @@ class EventDisplay(QMainWindow):
             self.ax2.clear()
             # sizes = front_npe
             # sizes = 5
-            if self.time_radio.isChecked():
+            if self.time_radio.isChecked() or self.rise_time_radio.isChecked():
                 scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, norm=norm, picker=True)
             else:
                 scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax, picker=True)
