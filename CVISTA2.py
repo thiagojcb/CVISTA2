@@ -19,9 +19,10 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 
 class EventDisplay(QMainWindow):
-    def __init__(self, input_file):
+    def __init__(self, input_file, evt_no = None):
         super().__init__()
         self.input_file = input_file
+        self.evt_no = evt_no
         self.initUI()
         self.colorbar = None
         self.reverse_pmt_dict = {}
@@ -30,6 +31,11 @@ class EventDisplay(QMainWindow):
 
         # some geometry var. hard coded for now.
         self.scint_radius      = 900
+        
+        # Plot data if event number is provided
+        if self.evt_no is not None:
+            self.entry_spinbox.setValue(self.evt_no)
+            self.plot_data()
 
     def initUI(self):
         self.setWindowTitle('Event Display')
@@ -259,7 +265,6 @@ class EventDisplay(QMainWindow):
                 self.half_length = -1*z[0]
             else:
                 self.half_length = z[0]
-            print(self.half_length)
 
             t = tree['mcPEHitTime'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             t = ak.to_numpy(t)
@@ -457,12 +462,13 @@ class EventDisplay(QMainWindow):
             print(f"An error occurred: {e}")
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print("Usage: python script_name.py <input_file>")
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
+        print("Usage: python script_name.py <input_file> [evt_no]")
         sys.exit(1)
     
     input_file = sys.argv[1]
+    evt_no = int(sys.argv[2]) if len(sys.argv) == 3 else None
     app = QApplication([])
-    window = EventDisplay(input_file)
+    window = EventDisplay(input_file, evt_no)
     window.show()
     app.exec_()
