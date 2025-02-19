@@ -11,6 +11,7 @@ import uproot
 import numpy as np
 import awkward as ak
 import matplotlib.pyplot as plt
+from particle import Particle
 from matplotlib.colors import LogNorm
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton
 from PyQt5.QtWidgets import QHBoxLayout, QSpinBox, QLabel, QRadioButton, QGroupBox, QTextEdit
@@ -211,7 +212,16 @@ class EventDisplay(QMainWindow):
     def get_pmtID(self,x,y,z):
         coords = (x, y, z)
         return self.reverse_pmt_dict.get(coords, None)
-
+    
+    def pdg_to_particle_name(self,pdg_id):
+        if pdg_id==-22:
+            return 'optical photon'
+        try:
+            particle = Particle.from_pdgid(pdg_id)
+            return particle.name
+        except ValueError:
+            return f'Unknown Particle (PDG ID {pdg_id})'
+        
     def plot_data(self):
         try:
             # Read data from ROOT file
@@ -241,7 +251,8 @@ class EventDisplay(QMainWindow):
 
             mcpdg    = tree['mcpdg'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             mcpdg    = ak.to_numpy(mcpdg)
-            summary_text += f"MC particle: {mcpdg[0]}\n"
+            mcpdg    = self.pdg_to_particle_name(int(mcpdg[0]))
+            summary_text += f"MC particle: {mcpdg}\n"
 
             mcke     = tree['mcke'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             mcke     = ak.to_numpy(mcke)
