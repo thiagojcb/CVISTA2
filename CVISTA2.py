@@ -310,8 +310,8 @@ class EventDisplay(QMainWindow):
             self.text_edit.setText(summary_text)
 
             # Define fixed ranges for the histograms
-            x_range = (-1250, 1250)
-            y_range = (-1250, 1250)
+            x_range = (-1.4*self.scint_radius, 1.4*self.scint_radius)
+            y_range = (-1.4*self.scint_radius, 1.4*self.scint_radius)
             self.hit_dict = {}
             for xi, yi, zi, ti in zip(x,y,z,t): #loop over vector length
                 if (xi, yi, zi) not in self.hit_dict: #getting the hit times of each fibre
