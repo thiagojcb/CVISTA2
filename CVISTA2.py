@@ -225,7 +225,7 @@ class EventDisplay(QMainWindow):
             return particle.name
         except ValueError:
             return f'Unknown Particle (PDG ID {pdg_id})'
-        
+
     def plot_data(self):
         try:
             # Read data from ROOT file
@@ -307,7 +307,7 @@ class EventDisplay(QMainWindow):
             mcPMTNPE = ak.to_numpy(mcPMTNPE)
 
             mcpecount = sum(mcPMTNPE)
-            mcnhits   = len(mcPMTNPE>0)
+            mcnhits   = sum(mcPMTNPE>0)
 
             summary_text += f"SiPMs w/ PEs: {mcnhits},"
             summary_text += f"Total PEs: {mcpecount}\n"
