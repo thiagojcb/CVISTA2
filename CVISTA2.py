@@ -26,6 +26,10 @@ class EventDisplay(QMainWindow):
         self.colorbar = None
         self.reverse_pmt_dict = {}
         self.pmt_dict = {}
+        
+        # some geometry var. hard coded for now.
+        self.radius      = 900
+        self.half_length = 2000
 
 
     def initUI(self):
@@ -369,7 +373,7 @@ class EventDisplay(QMainWindow):
                 scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, norm=norm, picker=True)
             else:
                 scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax, picker=True)
-            scatter1.set_gid('-2000') # HARD CODE Z!!!
+            scatter1.set_gid(str(-1*self.half_length)) # HARD CODE Z!!!
             self.ax1.set_xlim(x_range)
             self.ax1.set_ylim(y_range)
 
@@ -391,7 +395,7 @@ class EventDisplay(QMainWindow):
                 scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, norm=norm, picker=True)
             else:
                 scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax, picker=True)
-            scatter2.set_gid('2000') # HARD CODE Z!!!
+            scatter2.set_gid(str(self.half_length)) # HARD CODE Z!!!
             self.ax2.set_xlim(x_range)
             self.ax2.set_ylim(y_range)
             self.ax2.set_xlabel('X (mm)')
@@ -414,8 +418,8 @@ class EventDisplay(QMainWindow):
                 self.colorbar = self.figure2.colorbar(scatter2, cax=cax)
 
             # Draw dotted circles on the histograms
-            circle1 = plt.Circle((0, 0), radius=900, color='red', fill=False, linestyle='dotted')
-            circle2 = plt.Circle((0, 0), radius=900, color='red', fill=False, linestyle='dotted')
+            circle1 = plt.Circle((0, 0), radius=self.radius, color='red', fill=False, linestyle='dotted')
+            circle2 = plt.Circle((0, 0), radius=self.radius, color='red', fill=False, linestyle='dotted')
 
             self.ax1.add_patch(circle1)
             self.ax2.add_patch(circle2)
