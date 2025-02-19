@@ -26,11 +26,10 @@ class EventDisplay(QMainWindow):
         self.colorbar = None
         self.reverse_pmt_dict = {}
         self.pmt_dict = {}
-        
-        # some geometry var. hard coded for now.
-        self.radius      = 900
-        self.half_length = 2000
+        self.half_length = 0
 
+        # some geometry var. hard coded for now.
+        self.scint_radius      = 900
 
     def initUI(self):
         self.setWindowTitle('Event Display')
@@ -224,7 +223,7 @@ class EventDisplay(QMainWindow):
             pmtY = ak.to_numpy(pmtY)
             pmtZ  = meta["pmtZ"].array()[0]
             pmtZ = ak.to_numpy(pmtZ)
-     
+
             # Initialize text
             summary_text = 'File: '+self.input_file+f' ({nentries} entries)\n'
             summary_text += f'Entry: {entry_index}\n'
@@ -255,6 +254,12 @@ class EventDisplay(QMainWindow):
 
             z = tree['mcPEz'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             z = ak.to_numpy(z)
+
+            if z[0] < 0:
+                self.half_length = -1*z[0]
+            else:
+                self.half_length = z[0]
+            print(self.half_length)
 
             t = tree['mcPEHitTime'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             t = ak.to_numpy(t)
@@ -418,8 +423,8 @@ class EventDisplay(QMainWindow):
                 self.colorbar = self.figure2.colorbar(scatter2, cax=cax)
 
             # Draw dotted circles on the histograms
-            circle1 = plt.Circle((0, 0), radius=self.radius, color='red', fill=False, linestyle='dotted')
-            circle2 = plt.Circle((0, 0), radius=self.radius, color='red', fill=False, linestyle='dotted')
+            circle1 = plt.Circle((0, 0), radius=self.scint_radius, color='red', fill=False, linestyle='dotted')
+            circle2 = plt.Circle((0, 0), radius=self.scint_radius, color='red', fill=False, linestyle='dotted')
 
             self.ax1.add_patch(circle1)
             self.ax2.add_patch(circle2)
