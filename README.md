@@ -20,7 +20,7 @@ Developed and tested with Python 3.11.6.
 - `event number` is an optional argument. If given, the GUI will display this event at start up.
 
 ### Radio buttons
-The radio buttons on the top of the GUI indicates what kind of information you want to be plotted on the histograms.
+The radio buttons on the top of the GUI indicate what kind of information you want to be plotted on the histograms.
 - nPE: the number of simulation PEs collected by each SiPM.
 - First Hit Time: the simulated time of the first PE to reach a SiPM.
 - SiPM Charge: the integrated charge of each SiPM
