@@ -49,7 +49,7 @@ class EventDisplay(QMainWindow):
             self.plot_data()
 
     def initUI(self):
-        self.setWindowTitle('Event Display')
+        self.setWindowTitle('CVISTA2')
         self.setGeometry(100, 100, 1000, 1200)  # Adjusted window size
 
         central_widget = QWidget()
