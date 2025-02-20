@@ -499,7 +499,7 @@ class EventDisplay(QMainWindow):
             self.ax1.set_ylim(y_range)
 
             self.ax1.set_xlabel('X (mm)')
-            self.ax1.set_ylabel('Y (mm)')
+            self.ax1.set_ylabel('Y (mm)', labelpad=-10)
             leg1_text  = '-Z Channels\n'
             leg1_text += f'{len(back_npe_x)} SiPMs\n'
             if self.time_radio.isChecked():
@@ -522,6 +522,7 @@ class EventDisplay(QMainWindow):
             self.ax2.set_xlim(x_range)
             self.ax2.set_ylim(y_range)
             self.ax2.set_xlabel('X (mm)')
+            self.ax2.set_ylabel('Y (mm)', labelpad=-10)
             leg2_text  = '+Z Channels\n'
             leg2_text += f'{len(front_npe_x)} SiPMs\n'
             if self.time_radio.isChecked():
