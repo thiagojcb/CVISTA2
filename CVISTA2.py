@@ -255,14 +255,10 @@ class EventDisplay(QMainWindow):
                 self.charge_radio.setDisabled(True)
                 self.rise_time_radio.setDisabled(True)
         
-            pmtID = meta["pmtId"].array()[0]
-            pmtID = ak.to_numpy(pmtID)
-            pmtX  = meta["pmtX"].array()[0]
-            pmtX = ak.to_numpy(pmtX)
-            pmtY  = meta["pmtY"].array()[0]
-            pmtY = ak.to_numpy(pmtY)
-            pmtZ  = meta["pmtZ"].array()[0]
-            pmtZ = ak.to_numpy(pmtZ)
+            pmtID = ak.to_numpy(meta["pmtId"].array()[0])
+            pmtX  = ak.to_numpy(meta["pmtX"].array()[0])
+            pmtY  = ak.to_numpy(meta["pmtY"].array()[0])
+            pmtZ  = ak.to_numpy(meta["pmtZ"].array()[0])
 
             # Initialize text
             summary_text = 'File: '+self.input_file+f' ({nentries} entries)\n'
