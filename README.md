@@ -16,7 +16,7 @@ Developed and tested with Python 3.11.6.
 
 ## Usage
 `python CVISTA2.py <input_file> [event/entry number]`
-- `input_file` is a ntuple output file of Ratpac.
+- `input_file` is a ntuple output file of Ratpac-two.
 - `event number` is an optional argument. If given, the GUI will display this event at start up.
 
 ### Radio buttons
