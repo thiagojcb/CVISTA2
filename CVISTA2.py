@@ -168,6 +168,8 @@ class EventDisplay(QMainWindow):
             self.plot_data()
 
     def on_pick(self, event):
+        if self.charge_radio.isChecked() or self.rise_time_radio.isChecked():
+                return # do nothing if displaying data.
         ind = event.ind[0]
         x = event.artist.get_offsets()[ind, 0]
         y = event.artist.get_offsets()[ind, 1]
