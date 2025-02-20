@@ -192,10 +192,16 @@ class EventDisplay(QMainWindow):
         times = self.hit_dict.get((x,y,z),None)
         bin_edges = None
         if max(times) > 250:
-            bin_edges = np.arange(0, max(times) + 1, 1)  # 1ns bin width
+            bin_edges = np.arange(0, max(times) + 5, 1)  # 1ns bin width
         else:
             bin_edges = range(0,251)
-        counts, bin_edges, patches = self.ax3.hist(times, bins=bin_edges)
+        hist_color=''
+        if z>0:
+            hist_color='blue'
+        else:
+            hist_color='red'
+
+        counts, bin_edges, patches = self.ax3.hist(times, bins=bin_edges,alpha=0.5,color=hist_color)
         leg3_text  = f'SiPM#{pmt_id} ({x:.2f},{y:.2f},{z:.2f}) mm\n'
         leg3_text += f'{len(times)} PEs'
         style = dict(size=8, color='gray')
