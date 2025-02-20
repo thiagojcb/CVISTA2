@@ -15,6 +15,7 @@ from particle import Particle
 from matplotlib.colors import LogNorm
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton, QButtonGroup
 from PyQt5.QtWidgets import QHBoxLayout, QSpinBox, QLabel, QRadioButton, QGroupBox, QTextEdit
+from PyQt5.QtGui import QFont
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
@@ -134,17 +135,28 @@ class EventDisplay(QMainWindow):
         button_layout.addLayout(display_layout)
         
         # Previous button
-        self.prev_button = QPushButton('Display previous')
+        self.prev_button = QPushButton('Previous')
         self.prev_button.clicked.connect(self.display_prev_event)
         display_layout.addWidget(self.prev_button)
 
         # Next button
-        self.next_button = QPushButton('Display next')
+        self.next_button = QPushButton('Next')
         self.next_button.clicked.connect(self.display_next_event)
         display_layout.addWidget(self.next_button)
 
         # Text with basic event info
         self.text_edit = QTextEdit()
+        font = QFont("Courier New", 10)
+        self.text_edit.setFont(font)
+        self.text_edit.setStyleSheet("""
+            QTextEdit {
+                background-color: black;
+                color: #00FF00;
+                font-family: 'Courier New';
+                font-size: 14px;
+                border: none;
+            }
+        """)
         button_layout.addWidget(self.text_edit)
 
         control_layout.addLayout(button_layout)
@@ -273,11 +285,11 @@ class EventDisplay(QMainWindow):
 
             mcke     = tree['mcke'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             mcke     = ak.to_numpy(mcke)
-            summary_text += f"({mcke[0]:.1f} MeV) at "
+            summary_text += f"({mcke[0]:.1f} MeV)\n"
 
             x_th = tree['mcx'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             x_th = ak.to_numpy(x_th)
-            summary_text +=  f"({x_th[0]:.1f}, "
+            summary_text +=  f"Initial vertex: ({x_th[0]:.1f}, "
             y_th = tree['mcy'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
             y_th = ak.to_numpy(y_th)
             summary_text += f"{y_th[0]:.1f}, "
@@ -316,23 +328,21 @@ class EventDisplay(QMainWindow):
             mcpecount = sum(mcPMTNPE)
             mcnhits   = sum(mcPMTNPE>0)
 
-            summary_text += f"SiPMs w/ PEs: {mcnhits},"
+            summary_text += f"SiPMs w/ PEs: {mcnhits}, "
             summary_text += f"Total PEs: {mcpecount}\n"
 
             if reco_exists:
                 x_reco = tree['x_FitCentroid'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
                 x_reco = ak.to_numpy(x_reco)
-                summary_text += f"X reco: {x_reco[0]:.1f} mm, "
+                summary_text += f"Reconstructed vertex: ({x_reco[0]:.1f}, "
                 y_reco = tree['y_FitCentroid'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
                 y_reco = ak.to_numpy(y_reco)
-                summary_text += f"Y reco: {y_reco[0]:.1f} mm, "
+                summary_text += f"{y_reco[0]:.1f}, "
                 z_reco = tree['z_FitCentroid'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
                 z_reco = ak.to_numpy(z_reco)
-                summary_text += f"Z reco: {z_reco[0]:.1f} mm\n"
+                summary_text += f"{z_reco[0]:.1f}) mm\n"
             else:
-                summary_text += "X reco: NaN, "
-                summary_text += "Y reco: NaN, "
-                summary_text += "Z reco: NaN\n"
+                summary_text += "Reconstructed vertex: (NaN, NaN, NaN) mm\n"
 
             self.text_edit.setText(summary_text)
 
@@ -480,10 +490,10 @@ class EventDisplay(QMainWindow):
             self.ax1.clear()
             # sizes = back_npe
             sizes = 5
-            if self.time_radio.isChecked() or self.rise_time_radio.isChecked():
-                scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, norm=norm, picker=True)
+            if self.time_radio.isChecked():
+                scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, cmap='viridis', edgecolors='black', linewidth=0.5, norm=norm, picker=True)
             else:
-                scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax, picker=True)
+                scatter1 = self.ax1.scatter(back_npe_x, back_npe_y, c=back_npe, s=sizes, alpha=0.5, cmap='viridis', edgecolors='black', linewidth=0.5, vmin=vmin, vmax=vmax, picker=True)
             scatter1.set_gid(str(-1*self.half_length))
             self.ax1.set_xlim(x_range)
             self.ax1.set_ylim(y_range)
@@ -504,10 +514,10 @@ class EventDisplay(QMainWindow):
             self.ax2.clear()
             # sizes = front_npe
             # sizes = 5
-            if self.time_radio.isChecked() or self.rise_time_radio.isChecked():
-                scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, norm=norm, picker=True)
+            if self.time_radio.isChecked():
+                scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, cmap='viridis', edgecolors='black', linewidth=0.5, norm=norm, picker=True)
             else:
-                scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, vmin=vmin, vmax=vmax, picker=True)
+                scatter2 = self.ax2.scatter(front_npe_x, front_npe_y, c=front_npe, s=sizes, alpha=0.5, cmap='viridis', edgecolors='black', linewidth=0.5, vmin=vmin, vmax=vmax, picker=True)
             scatter2.set_gid(str(self.half_length))
             self.ax2.set_xlim(x_range)
             self.ax2.set_ylim(y_range)
