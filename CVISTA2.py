@@ -572,8 +572,8 @@ class EventDisplay(QMainWindow):
 
                 overflow_countF = sum(1 for time in front_pe_times if time > 250)
                 overflow_countB = sum(1 for time in back_pe_times if time > 250)
-                countsF, bin_edgesF, patchesF = self.ax3.hist(front_pe_times, bins=range(0,251), alpha=0.5, label=f'Front Channels ({overflow_countF} overflow PEs)', color='blue')
-                countsB, bin_edgesB, patchesB = self.ax3.hist(back_pe_times, bins=range(0,251), alpha=0.5, label=f'Back Channels ({overflow_countB} overflow PEs)', color='red')
+                countsF, bin_edgesF, patchesF = self.ax3.hist(front_pe_times, bins=range(0,251), alpha=0.5, label=f'+Z Channels ({overflow_countF} overflow PEs)', color='blue')
+                countsB, bin_edgesB, patchesB = self.ax3.hist(back_pe_times, bins=range(0,251), alpha=0.5, label=f' -Z Channels ({overflow_countB} overflow PEs)', color='red')
                 self.ax3.set_xlabel('PE time (ns)')
                 self.ax3.set_ylabel(f'Entries / {bin_edgesF[1]-bin_edgesF[0]} ns')
                 self.ax3.legend()
@@ -582,8 +582,8 @@ class EventDisplay(QMainWindow):
                 flagged_z  = np.array([self.pmt_dict[id][2] for id in hitPMTID])
                 back_time  = self.hitPMTTime[flagged_z < 0]
                 front_time = self.hitPMTTime[flagged_z > 0]
-                countsF, bin_edgesF, patchesF = self.ax3.hist(front_time, bins=range(0,500,2), alpha=0.5, label='Front Channels', color='blue')
-                countsB, bin_edgesB, patchesB = self.ax3.hist(back_time, bins=range(0,500,2), alpha=0.5, label='Back Channels', color='red')
+                countsF, bin_edgesF, patchesF = self.ax3.hist(front_time, bins=range(0,500,2), alpha=0.5, label='+Z Channels', color='blue')
+                countsB, bin_edgesB, patchesB = self.ax3.hist(back_time, bins=range(0,500,2), alpha=0.5, label=' -Z Channels', color='red')
                 self.ax3.set_xlabel('SiPM time (tick)')
                 self.ax3.set_ylabel(f'Entries / {bin_edgesF[1]-bin_edgesF[0]} tick')
                 self.ax3.legend()
