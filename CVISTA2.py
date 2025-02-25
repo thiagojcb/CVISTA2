@@ -507,13 +507,13 @@ class EventDisplay(QMainWindow):
             self.ax1.set_xlabel('X (mm)')
             self.ax1.set_ylabel('Y (mm)', labelpad=-10)
             leg1_text  = '-Z Channels\n'
-            leg1_text += f'{len(back_npe_x)} SiPMs\n'
+            leg1_text += f'{len(back_npe_x):,} SiPMs\n'
             if self.time_radio.isChecked():
                 leg1_text += f'{min(back_npe):.1f} ns (1st PE)'
             elif self.charge_radio.isChecked():
                 leg1_text += f'{sum(back_npe):.1f} DUQ'
             elif self.signal_radio.isChecked():
-                leg1_text += f'{sum(back_npe)} PEs'
+                leg1_text += f'{sum(back_npe):,} PEs'
             style = dict(size=8, color='gray')
             self.ax1.text(self.scint_radius*0.75,self.scint_radius,leg1_text,**style)
 
@@ -530,13 +530,13 @@ class EventDisplay(QMainWindow):
             self.ax2.set_xlabel('X (mm)')
             self.ax2.set_ylabel('Y (mm)', labelpad=-10)
             leg2_text  = '+Z Channels\n'
-            leg2_text += f'{len(front_npe_x)} SiPMs\n'
+            leg2_text += f'{len(front_npe_x):,} SiPMs\n'
             if self.time_radio.isChecked():
                 leg2_text += f'{min(front_npe):.1f} ns (1st PE)'
             elif self.charge_radio.isChecked():
                 leg2_text += f'{sum(front_npe):.1f} DUQ'
             elif self.signal_radio.isChecked():
-                leg2_text += f'{sum(front_npe)} PEs'
+                leg2_text += f'{sum(front_npe):,} PEs'
             self.ax2.text(self.scint_radius*0.75,self.scint_radius,leg2_text,**style)
 
             if self.colorbar:
@@ -550,8 +550,8 @@ class EventDisplay(QMainWindow):
                 self.colorbar = self.figure2.colorbar(scatter2, cax=cax)
 
             # Draw dotted circles on the histograms
-            circle1 = plt.Circle((0, 0), radius=self.scint_radius, color='red', fill=False, linestyle='dotted')
-            circle2 = plt.Circle((0, 0), radius=self.scint_radius, color='red', fill=False, linestyle='dotted')
+            circle1 = plt.Circle((0, 0), radius=self.scint_radius, color='red',  fill=False, linestyle='dotted')
+            circle2 = plt.Circle((0, 0), radius=self.scint_radius, color='blue', fill=False, linestyle='dotted')
 
             self.ax1.add_patch(circle1)
             self.ax2.add_patch(circle2)
