@@ -269,7 +269,7 @@ class EventDisplay(QMainWindow):
             # check if branches exist
             branches = tree.keys()
             reco_exists    = 'x_FitCentroid' in branches
-            readout_exists = 'hitPMTDigitizedTime' in branches
+            readout_exists = 'digitTime' in branches
 
             if not readout_exists:
                 self.charge_radio.setDisabled(True)
@@ -425,12 +425,12 @@ class EventDisplay(QMainWindow):
                         back_npe   = np.append(back_npe,min(tiso))
 
             elif self.charge_radio.isChecked():
-                hitPMTID = tree['hitPMTID'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+                hitPMTID = tree['digitPMTID'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
                 hitPMTID = ak.to_numpy(hitPMTID)
 
-                hitPMTCharge = tree['hitPMTDigitizedCharge'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+                hitPMTCharge = tree['digitCharge'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
                 hitPMTCharge = ak.to_numpy(hitPMTCharge)
-                self.hitPMTTime = tree['hitPMTDigitizedTime'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+                self.hitPMTTime = tree['digitTime'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
                 self.hitPMTTime = ak.to_numpy(self.hitPMTTime)
 
                 # Extract the corresponding pmtx, pmty, and pmtz values for the flagged pmtids
