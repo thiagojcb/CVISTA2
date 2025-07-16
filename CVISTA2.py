@@ -456,10 +456,10 @@ class EventDisplay(QMainWindow):
                 front_npe_x = front_npe_x[withPE]
                 front_npe_y = front_npe_y[withPE]
             elif self.rise_time_radio.isChecked():
-                hitPMTID = tree['hitPMTID'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+                hitPMTID = tree['digitPMTID'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
                 hitPMTID = ak.to_numpy(hitPMTID)
 
-                self.hitPMTTime = tree['hitPMTDigitizedTime'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
+                self.hitPMTTime = tree['digitTime'].array(entry_start=entry_index, entry_stop=entry_index+1)[0]
                 self.hitPMTTime = ak.to_numpy(self.hitPMTTime)
 
                 # Extract the corresponding pmtx, pmty, and pmtz values for the flagged pmtids
