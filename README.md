@@ -3,11 +3,11 @@ A data visualisation GUI for **ntuple** files of opaque scintillator detectors s
 ![image](https://github.com/user-attachments/assets/948e44fa-da53-40c9-a0f6-c82fb5ffff1d)
 
 ## Dependencies
-- uproot
-- numpy
-- awkward
-- matplotlib
-- particle
+- uproot 5.4.1
+- numpy 1.24.2
+- awkward 2.6.9
+- matplotlib 3.6.3
+- particle 0.25.2
 - PyQt5
   
 Use `pip install <module>` if needed.
